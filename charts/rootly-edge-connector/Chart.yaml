@@ -4,7 +4,8 @@ description: Rootly Edge Connector - Execute custom actions in response to Rootl
 type: application
 version: 0.1.0
 appVersion: "0.0.3"
-home: https://github.com/rootlyhq/rootly-edge-connector
+home: https://rootly.com
+icon: https://avatars.githubusercontent.com/u/64895812
 sources:
   - https://github.com/rootlyhq/rootly-edge-connector
 maintainers:
