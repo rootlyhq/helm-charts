@@ -1,0 +1,12 @@
+{{- include "rootly-catalog-sync.validateValues" . -}}
+{{- if not .Values.existingConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "rootly-catalog-sync.configMapName" . }}
+  labels:
+    {{- include "rootly-catalog-sync.labels" . | nindent 4 }}
+data:
+  rootly-catalog-sync.yaml: |
+    {{- .Values.configYaml | nindent 4 }}
+{{- end }}

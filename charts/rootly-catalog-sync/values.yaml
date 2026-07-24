@@ -1,0 +1,136 @@
+# -- Sync mode: "cronjob" for periodic sync, "watch" for continuous reconciliation
+mode: cronjob
+
+image:
+  repository: rootlyhub/rootly-catalog-sync
+  # Overrides the image tag whose default is the chart appVersion
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  fsGroup: 65534
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# -- Rootly API configuration
+rootly:
+  # -- API key (format: rootly_xxxxx). Creates a Secret if set.
+  apiKey: ""
+  # -- Use an existing Secret instead of creating one
+  existingSecret: ""
+  # -- Key within the existing Secret that contains the API key
+  secretKey: "api-key"
+  # -- Rootly API URL (default: https://api.rootly.com)
+  apiUrl: ""
+  # -- API path prefix (default: /v1)
+  apiPath: ""
+
+# -- CronJob settings (only used when mode: cronjob)
+cronjob:
+  # -- Cron schedule expression
+  schedule: "*/30 * * * *"
+  # -- Number of successful jobs to keep
+  successfulJobsHistoryLimit: 3
+  # -- Number of failed jobs to keep
+  failedJobsHistoryLimit: 3
+  # -- Deadline in seconds for starting the job
+  startingDeadlineSeconds: 300
+  # -- Concurrency policy: Forbid, Replace, or Allow
+  concurrencyPolicy: Forbid
+  # -- Number of retries before marking a sync job as failed
+  backoffLimit: 1
+  # -- Seconds after completion before job pod is cleaned up
+  ttlSecondsAfterFinished: 300
+  # -- Restart policy for the pod
+  restartPolicy: OnFailure
+
+# -- Watch mode settings (only used when mode: watch)
+watch:
+  # -- Sync interval (e.g., 5m, 10m, 1h)
+  interval: "5m"
+
+# -- Sync flags
+sync:
+  # -- Allow deletion of entries absent from source
+  allowPrune: false
+  # -- Maximum fraction of live entities that can be pruned (0.0-1.0)
+  pruneThreshold: 0.2
+
+# -- Catalog sync config (raw YAML string)
+# This is a raw string to avoid Helm interpreting the Go {{ }} template syntax.
+# Example:
+#   configYaml: |
+#     version: 2
+#     sync:
+#       - from:
+#           local:
+#             files: ["/data/services.yaml"]
+#         to: service
+#         map:
+#           external_id: "{{ .id }}"
+#           name: "{{ .name }}"
+#           description: "{{ .description }}"
+configYaml: ""
+
+# -- Use an existing ConfigMap for the sync config
+existingConfigMap: ""
+
+# -- Extra data files to mount (e.g., source YAML files)
+# Each entry creates a file under /data/ in the container
+dataFiles: {}
+# services.yaml: |
+#   - id: api-gateway
+#     name: API Gateway
+#     description: Edge proxy
+# teams.yaml: |
+#   - id: platform-eng
+#     name: Platform Engineering
+
+# -- Use an existing ConfigMap for data files
+existingDataConfigMap: ""
+
+# -- Extra environment variables
+extraEnv: []
+# - name: GITHUB_TOKEN
+#   valueFrom:
+#     secretKeyRef:
+#       name: github-token
+#       key: token
+
+# -- Extra volume mounts
+extraVolumeMounts: []
+
+# -- Extra volumes
+extraVolumes: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

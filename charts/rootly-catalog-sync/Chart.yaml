@@ -1,0 +1,20 @@
+apiVersion: v2
+name: rootly-catalog-sync
+description: Rootly Catalog Sync - Keep services, teams, and metadata in sync from external sources
+type: application
+version: 0.1.0
+appVersion: "0.3.2"
+home: https://rootly.com
+icon: https://avatars.githubusercontent.com/u/64895812
+sources:
+  - https://github.com/rootlyhq/rootly-catalog-sync
+maintainers:
+  - name: Rootly
+    email: support@rootly.com
+    url: https://rootly.com
+keywords:
+  - rootly
+  - catalog
+  - sync
+  - service-catalog
+  - incident-management

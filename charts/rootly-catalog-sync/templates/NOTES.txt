@@ -1,0 +1,17 @@
+Rootly Catalog Sync has been deployed.
+
+Mode: {{ .Values.mode }}
+{{- if eq .Values.mode "cronjob" }}
+Schedule: {{ .Values.cronjob.schedule }}
+{{- else }}
+Watch interval: {{ .Values.watch.interval }}
+{{- end }}
+
+To check the sync status:
+{{- if eq .Values.mode "cronjob" }}
+  kubectl get cronjobs -l app.kubernetes.io/name={{ include "rootly-catalog-sync.name" . }}
+  kubectl get jobs -l app.kubernetes.io/name={{ include "rootly-catalog-sync.name" . }}
+{{- else }}
+  kubectl get pods -l app.kubernetes.io/name={{ include "rootly-catalog-sync.name" . }}
+  kubectl logs -l app.kubernetes.io/name={{ include "rootly-catalog-sync.name" . }} -f
+{{- end }}
