@@ -33,6 +33,13 @@ helm install rootly-edge-connector rootly/rootly-edge-connector \
 ### Using OCI registry
 
 ```shell
+# Catalog Sync
+helm install catalog-sync oci://ghcr.io/rootlyhq/helm-charts/rootly-catalog-sync \
+  --version 0.1.0 \
+  --set rootly.apiKey=rootly_... \
+  --set-string configYaml="$(cat rootly-catalog-sync.yaml)"
+
+# Edge Connector
 helm install rootly-edge-connector oci://ghcr.io/rootlyhq/helm-charts/rootly-edge-connector \
   --version 0.1.0 \
   --set rootly.apiKey=rec_your_api_key \
