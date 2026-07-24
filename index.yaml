@@ -1,5 +1,31 @@
 apiVersion: v1
 entries:
+  rootly-catalog-sync:
+  - apiVersion: v2
+    appVersion: 0.3.2
+    created: "2026-07-24T05:50:40.839598811Z"
+    description: Rootly Catalog Sync - Keep services, teams, and metadata in sync
+      from external sources
+    digest: 3c11f215e5f0bd89f7eeecb6ab4889e75aff6bf0ca4d89cbc31959748ee2816a
+    home: https://rootly.com
+    icon: https://avatars.githubusercontent.com/u/64895812
+    keywords:
+    - rootly
+    - catalog
+    - sync
+    - service-catalog
+    - incident-management
+    maintainers:
+    - email: support@rootly.com
+      name: Rootly
+      url: https://rootly.com
+    name: rootly-catalog-sync
+    sources:
+    - https://github.com/rootlyhq/rootly-catalog-sync
+    type: application
+    urls:
+    - https://github.com/rootlyhq/helm-charts/releases/download/rootly-catalog-sync-0.1.0/rootly-catalog-sync-0.1.0.tgz
+    version: 0.1.0
   rootly-edge-connector:
   - apiVersion: v2
     appVersion: 0.0.3
@@ -25,4 +51,4 @@ entries:
     urls:
     - https://github.com/rootlyhq/helm-charts/releases/download/rootly-edge-connector-0.1.0/rootly-edge-connector-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-11T12:34:23.988200075Z"
+generated: "2026-07-24T05:50:40.839603139Z"
