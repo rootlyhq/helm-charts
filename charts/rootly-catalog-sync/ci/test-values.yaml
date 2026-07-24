@@ -1,0 +1,15 @@
+rootly:
+  apiKey: "rootly_test_ci_placeholder"
+
+configYaml: |
+  version: 2
+  sync:
+    - from:
+        inline:
+          entries:
+            - id: ci-test
+              name: CI Test
+      to: "CI Test Catalog"
+      map:
+        external_id: "{{ .id }}"
+        name: "{{ .name }}"
