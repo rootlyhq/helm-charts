@@ -4,6 +4,7 @@ Official Helm charts for Rootly products.
 
 ## Charts
 
+- [Rootly Catalog Sync](charts/rootly-catalog-sync/) — Keep services, teams, and metadata in sync from external sources
 - [Rootly Edge Connector](charts/rootly-edge-connector/) — Execute custom actions in response to Rootly alerts and incidents
 
 ## Usage
@@ -18,6 +19,12 @@ helm repo update
 Install a chart:
 
 ```shell
+# Catalog Sync (CronJob by default, or --set mode=watch for continuous)
+helm install catalog-sync rootly/rootly-catalog-sync \
+  --set rootly.apiKey=rootly_... \
+  --set-string configYaml="$(cat rootly-catalog-sync.yaml)"
+
+# Edge Connector
 helm install rootly-edge-connector rootly/rootly-edge-connector \
   --set rootly.apiKey=rec_your_api_key \
   --set-file actionsYaml=actions.yml
