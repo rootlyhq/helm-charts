@@ -2,7 +2,7 @@
 mode: cronjob
 
 image:
-  repository: rootlyhq/rootly-catalog-sync
+  repository: rootlyhub/rootly-catalog-sync
   # Overrides the image tag whose default is the chart appVersion
   tag: ""
   pullPolicy: IfNotPresent
