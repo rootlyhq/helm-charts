@@ -56,6 +56,10 @@ cronjob:
   startingDeadlineSeconds: 300
   # -- Concurrency policy: Forbid, Replace, or Allow
   concurrencyPolicy: Forbid
+  # -- Number of retries before marking a sync job as failed
+  backoffLimit: 1
+  # -- Seconds after completion before job pod is cleaned up
+  ttlSecondsAfterFinished: 300
   # -- Restart policy for the pod
   restartPolicy: OnFailure
 

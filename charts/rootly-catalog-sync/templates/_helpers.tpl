@@ -195,6 +195,9 @@ affinity:
 Validate required values.
 */}}
 {{- define "rootly-catalog-sync.validateValues" -}}
+{{- if and (ne .Values.mode "cronjob") (ne .Values.mode "watch") }}
+{{- fail "mode must be 'cronjob' or 'watch'" }}
+{{- end }}
 {{- if and (not .Values.rootly.apiKey) (not .Values.rootly.existingSecret) }}
 {{- fail "rootly.apiKey or rootly.existingSecret is required" }}
 {{- end }}
