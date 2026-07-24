@@ -1,0 +1,13 @@
+{{- if and .Values.dataFiles (not .Values.existingDataConfigMap) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "rootly-catalog-sync.dataConfigMapName" . }}
+  labels:
+    {{- include "rootly-catalog-sync.labels" . | nindent 4 }}
+data:
+  {{- range $name, $content := .Values.dataFiles }}
+  {{ $name }}: |
+    {{- $content | nindent 4 }}
+  {{- end }}
+{{- end }}

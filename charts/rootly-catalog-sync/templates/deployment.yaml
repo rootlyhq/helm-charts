@@ -1,0 +1,26 @@
+{{- if eq .Values.mode "watch" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rootly-catalog-sync.fullname" . }}
+  labels:
+    {{- include "rootly-catalog-sync.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "rootly-catalog-sync.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "rootly-catalog-sync.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- include "rootly-catalog-sync.podSpec" . | nindent 6 }}
+{{- end }}
