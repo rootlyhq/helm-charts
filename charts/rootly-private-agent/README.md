@@ -91,7 +91,9 @@ cosign verify \
 ```
 
 The chart pins the released image digest in `values.yaml`; the tag remains as a
-human-readable version reference.
+human-readable version reference. See Rootly's
+[Private Agent distribution guide](https://docs.rootly.com/private-agent#verify-the-distributed-image)
+for the canonical customer instructions.
 
 ## Licensing
 
