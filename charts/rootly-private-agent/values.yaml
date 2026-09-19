@@ -1,0 +1,146 @@
+replicaCount: 1
+
+image:
+  repository: rootlyhub/rootly-private-agent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+  # When set, the immutable digest takes precedence over tag.
+  digest: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+agent:
+  # Defaults to the Helm release's fully qualified name.
+  name: ""
+  grpcURL: https://connect.rootly.com
+  controlPlaneEnabled: true
+  logLevel: info
+  maximumConcurrency: 4
+  # Optional mounted path supplied through extraVolumes/extraVolumeMounts.
+  caBundleFile: ""
+
+enrollment:
+  # Prefer --set-file or an existing Secret instead of storing this value.
+  token: ""
+  existingSecret: ""
+  secretKey: enrollment-token
+
+providers:
+  kubernetes:
+    enabled: true
+    # Defaults to the agent name.
+    id: ""
+    displayName: ""
+    policy:
+      allowedNamespaces:
+        - "*"
+      allowClusterScoped: true
+      defaultListLimit: 500
+      maximumListLimit: 1000
+      defaultWatchSeconds: 30
+      maximumWatchSeconds: 60
+      maximumResultBytes: 2097152
+      # Pod logs may contain credentials or customer data and require opt-in.
+      allowPodLogs: false
+      allowInsecureLogBackendTLS: false
+      defaultLogBytes: 262144
+      maximumLogBytes: 1048576
+      defaultLogSeconds: 30
+      maximumLogSeconds: 60
+  # Provider credentials must reference mounted files, never inline secrets.
+  prometheus: []
+  loki: []
+  mcp: []
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+rbac:
+  create: true
+
+persistence:
+  enabled: true
+  existingClaim: ""
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+  annotations: {}
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: health
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: health
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 6
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /healthz
+    port: health
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 12
+
+terminationGracePeriodSeconds: 30
+priorityClassName: ""
+nodeSelector: {}
+tolerations: []
+affinity: {}
+topologySpreadConstraints: []
+
+podDisruptionBudget:
+  enabled: false
+  maxUnavailable: 1
+
+# Standard NetworkPolicy cannot allow an egress hostname. When enabled, provide
+# explicit DNS, Kubernetes API, connect.rootly.com, and provider endpoint rules.
+networkPolicy:
+  enabled: false
+  egress: []
+
+extraEnv: []
+extraVolumes: []
+extraVolumeMounts: []
