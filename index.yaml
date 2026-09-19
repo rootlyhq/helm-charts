@@ -51,4 +51,34 @@ entries:
     urls:
     - https://github.com/rootlyhq/helm-charts/releases/download/rootly-edge-connector-0.1.0/rootly-edge-connector-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-24T05:50:40.839603139Z"
+  rootly-private-agent:
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: Initial early-preview release of Rootly Private Agent.
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/prerelease: "true"
+    apiVersion: v2
+    appVersion: 0.1.0-beta.5
+    created: "2026-09-19T20:56:42.712074938Z"
+    description: Outbound-only private infrastructure access for Rootly AI SRE
+    digest: 49aaa304c208567739fab27b9f30bd48b618687c80fd63ebf526b732fac25991
+    home: https://rootly.com
+    icon: https://avatars.githubusercontent.com/u/64895812
+    keywords:
+    - rootly
+    - ai-sre
+    - private-agent
+    - kubernetes
+    maintainers:
+    - email: support@rootly.com
+      name: Rootly
+      url: https://rootly.com
+    name: rootly-private-agent
+    sources:
+    - https://github.com/rootlyhq/helm-charts/tree/master/charts/rootly-private-agent
+    type: application
+    urls:
+    - https://github.com/rootlyhq/helm-charts/releases/download/rootly-private-agent-0.1.0/rootly-private-agent-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-09-19T20:56:42.712079064Z"
