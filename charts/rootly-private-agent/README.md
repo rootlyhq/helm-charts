@@ -75,11 +75,11 @@ Kubernetes API, `connect.rootly.com:443`, and every configured provider endpoint
 ## Verifying the container image
 
 Rootly publishes immutable multi-platform images and signs the manifest digest
-with the private agent release workflow. Resolve the digest directly from the
-public registry and verify its keyless signature:
+with the private agent release workflow. With Cosign 3 or newer, resolve the
+digest directly from the public registry and verify its keyless signature:
 
 ```sh
-VERSION=0.1.0-beta.4
+VERSION=0.1.0-beta.5
 DIGEST="$(docker buildx imagetools inspect \
   "rootlyhub/rootly-private-agent:${VERSION}" \
   --format '{{.Manifest.Digest}}')"

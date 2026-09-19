@@ -1,8 +1,3 @@
-image:
-  # Keep chart install CI runnable before the prospective beta.4 release exists.
-  # The chart default is updated to the immutable release digest before merge.
-  tag: 0.1.0-beta.3
-
 agent:
   controlPlaneEnabled: false
 providers:

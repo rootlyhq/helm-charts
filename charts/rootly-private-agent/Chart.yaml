@@ -3,7 +3,7 @@ name: rootly-private-agent
 description: Outbound-only private infrastructure access for Rootly AI SRE
 type: application
 version: 0.1.0
-appVersion: "0.1.0-beta.4"
+appVersion: "0.1.0-beta.5"
 home: https://rootly.com
 icon: https://avatars.githubusercontent.com/u/64895812
 sources:
