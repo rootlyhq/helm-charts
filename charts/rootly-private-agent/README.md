@@ -72,6 +72,27 @@ The optional NetworkPolicy is disabled because standard Kubernetes policy cannot
 allow DNS hostnames. If enabled, supply egress rules for cluster DNS, the
 Kubernetes API, `connect.rootly.com:443`, and every configured provider endpoint.
 
+## Verifying the container image
+
+Rootly publishes immutable multi-platform images and signs the manifest digest
+with the private agent release workflow. Resolve the digest directly from the
+public registry and verify its keyless signature:
+
+```sh
+VERSION=0.1.0-beta.4
+DIGEST="$(docker buildx imagetools inspect \
+  "rootlyhub/rootly-private-agent:${VERSION}" \
+  --format '{{.Manifest.Digest}}')"
+
+cosign verify \
+  --certificate-identity "https://github.com/rootlyhq/rootly-private-agent/.github/workflows/release.yml@refs/tags/v${VERSION}" \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  "rootlyhub/rootly-private-agent@${DIGEST}"
+```
+
+The chart pins the released image digest in `values.yaml`; the tag remains as a
+human-readable version reference.
+
 ## Licensing
 
 The Helm chart source is licensed under Apache-2.0 as part of this repository.
