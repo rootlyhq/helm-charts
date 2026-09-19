@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "rootly-private-agent.fullname" . }}
+  labels:
+    {{- include "rootly-private-agent.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    version: 1
+    runtime:
+      listen_address: ":8080"
+      log_level: {{ .Values.agent.logLevel | quote }}
+      maximum_concurrency: {{ int .Values.agent.maximumConcurrency }}
+    rootly:
+      grpc_url: {{ .Values.agent.grpcURL | quote }}
+      control_plane_enabled: {{ .Values.agent.controlPlaneEnabled }}
+      agent_name: {{ include "rootly-private-agent.agentName" . | quote }}
+      credential_state_file: /var/lib/rootly-private-agent/credentials.json
+      enrollment_token_file: /var/run/secrets/rootly-private-agent/enrollment-token
+      {{- with .Values.agent.caBundleFile }}
+      ca_bundle_file: {{ . | quote }}
+      {{- end }}
+    providers:
+      kubernetes:
+        enabled: {{ .Values.providers.kubernetes.enabled }}
+        id: {{ include "rootly-private-agent.providerID" . | quote }}
+        display_name: {{ default (include "rootly-private-agent.providerID" .) .Values.providers.kubernetes.displayName | quote }}
+        policy:
+          allowed_namespaces:
+            {{- toYaml .Values.providers.kubernetes.policy.allowedNamespaces | nindent 12 }}
+          allow_cluster_scoped: {{ .Values.providers.kubernetes.policy.allowClusterScoped }}
+          default_list_limit: {{ int .Values.providers.kubernetes.policy.defaultListLimit }}
+          maximum_list_limit: {{ int .Values.providers.kubernetes.policy.maximumListLimit }}
+          default_watch_seconds: {{ int .Values.providers.kubernetes.policy.defaultWatchSeconds }}
+          maximum_watch_seconds: {{ int .Values.providers.kubernetes.policy.maximumWatchSeconds }}
+          maximum_result_bytes: {{ int .Values.providers.kubernetes.policy.maximumResultBytes }}
+          allow_pod_logs: {{ .Values.providers.kubernetes.policy.allowPodLogs }}
+          allow_insecure_log_backend_tls: {{ .Values.providers.kubernetes.policy.allowInsecureLogBackendTLS }}
+          default_log_bytes: {{ int .Values.providers.kubernetes.policy.defaultLogBytes }}
+          maximum_log_bytes: {{ int .Values.providers.kubernetes.policy.maximumLogBytes }}
+          default_log_seconds: {{ int .Values.providers.kubernetes.policy.defaultLogSeconds }}
+          maximum_log_seconds: {{ int .Values.providers.kubernetes.policy.maximumLogSeconds }}
+      prometheus:
+        {{- toYaml .Values.providers.prometheus | nindent 8 }}
+      loki:
+        {{- toYaml .Values.providers.loki | nindent 8 }}
+      mcp:
+        {{- toYaml .Values.providers.mcp | nindent 8 }}

@@ -1,0 +1,120 @@
+Rootly Private Agent Binary License
+Version 1.0, September 2026
+
+Copyright (c) 2026 Rootly Inc. All rights reserved.
+
+This license governs the Rootly Private Agent executable, container image, and
+other object-code distributions supplied by Rootly Inc. (the "Software"). The
+Software is proprietary and is not open-source software.
+
+By downloading, installing, copying, or using the Software, you agree to this
+license. If you accept it for an entity, you represent that you are authorized
+to bind that entity.
+
+1. Authorized users
+
+An "Authorized User" is a person or entity that has a current written agreement
+with Rootly Inc. authorizing access to the Rootly service, or that Rootly Inc.
+has expressly authorized in writing to evaluate the Software. If you are not an
+Authorized User, no license to use the Software is granted.
+
+2. Limited license
+
+Subject to this license and the applicable written agreement with Rootly Inc.,
+Rootly Inc. grants each Authorized User a limited, non-exclusive,
+non-transferable, non-sublicensable, revocable license to download, reproduce,
+and run unmodified copies of the Software solely:
+
+  a. within infrastructure owned or controlled by the Authorized User;
+  b. for the Authorized User's internal business purposes; and
+  c. to connect that infrastructure to the Rootly service or to perform an
+     evaluation expressly approved by Rootly Inc.
+
+An Authorized User may make a reasonable number of backup copies and may allow
+its employees and contractors to operate the Software on its behalf, provided
+those persons are bound by obligations at least as protective as this license.
+
+3. Restrictions
+
+Except to the extent a restriction is prohibited by applicable law, you may not:
+
+  a. modify, adapt, translate, or create derivative works of the Software;
+  b. reverse engineer, decompile, disassemble, or otherwise attempt to derive
+     source code or non-public implementation details from the Software;
+  c. distribute, publish, sell, rent, lease, sublicense, transfer, or make the
+     Software available to a third party;
+  d. use the Software to provide a hosted, managed, service-bureau, or other
+     service for a third party;
+  e. use the Software or its non-public implementation details to develop,
+     train, validate, or improve a competing product or service;
+  f. remove or alter proprietary, copyright, attribution, or license notices;
+  g. bypass or interfere with authentication, authorization, usage limits,
+     local policy enforcement, or other technical restrictions; or
+  h. use the Software in violation of applicable law or the applicable written
+     agreement with Rootly Inc.
+
+If applicable law gives you a non-waivable right to perform an otherwise
+restricted activity, you must first give Rootly Inc. written notice and may
+exercise that right only to the minimum extent required by law.
+
+4. Ownership and feedback
+
+The Software is licensed, not sold. Rootly Inc. and its licensors retain all
+right, title, and interest in and to the Software, including all intellectual
+property rights. No rights are granted by implication, estoppel, or otherwise.
+If you voluntarily provide feedback about the Software, Rootly Inc. may use it
+without restriction or obligation to you.
+
+5. Third-party components
+
+The Software includes third-party components governed by their own license
+terms. Those terms are identified in the third-party notices distributed with
+the Software and control solely with respect to the applicable third-party
+components. Nothing in this license limits rights granted under those terms.
+
+6. Updates and service dependency
+
+Rootly Inc. may provide updates or replacements for the Software. Unless Rootly
+Inc. states otherwise, this license governs those updates. The Software is
+designed for use with the Rootly service and may require a valid account,
+enrollment credential, compatible service version, and network connectivity.
+This license does not grant access to the Rootly service.
+
+7. Term and termination
+
+This license begins when you first download, copy, or use the Software. It ends
+automatically when you cease to be an Authorized User or materially breach this
+license or the applicable written agreement with Rootly Inc. Upon termination,
+you must stop using and delete all copies of the Software, except copies retained
+solely where required by law. Sections 3, 4, 5, 8, 9, and 10 survive termination.
+
+8. Disclaimer
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS" AND
+WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR STATUTORY,
+INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+TITLE, AND NON-INFRINGEMENT. THE APPLICABLE WRITTEN AGREEMENT WITH ROOTLY INC.
+MAY PROVIDE DIFFERENT WARRANTIES, IN WHICH CASE THAT AGREEMENT CONTROLS.
+
+9. Limitation of liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, ROOTLY INC. AND ITS LICENSORS WILL NOT BE
+LIABLE UNDER THIS LICENSE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL,
+EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR LOST PROFITS, REVENUE, DATA, OR BUSINESS
+OPPORTUNITY, EVEN IF ADVISED OF THE POSSIBILITY OF THOSE DAMAGES. ANY LIABILITY
+IS SUBJECT TO THE LIMITATIONS IN THE APPLICABLE WRITTEN AGREEMENT WITH ROOTLY
+INC. IF THERE IS NO SUCH AGREEMENT, ROOTLY INC.'S AGGREGATE LIABILITY UNDER THIS
+LICENSE WILL NOT EXCEED ONE HUNDRED U.S. DOLLARS (US$100).
+
+10. Relationship to other agreements
+
+The applicable written agreement between an Authorized User and Rootly Inc.
+governs access to the Rootly service, support, data processing, security,
+warranties, liability, governing law, and dispute resolution. If that agreement
+conflicts with this license, that agreement controls. Otherwise, this license is
+the complete agreement concerning the Software itself. Rootly Inc.'s failure to
+enforce a provision is not a waiver. If a provision is unenforceable, it will be
+limited to the minimum extent necessary and the remaining provisions will
+continue in effect.
+
+Questions about this license may be sent to legal@rootly.com.

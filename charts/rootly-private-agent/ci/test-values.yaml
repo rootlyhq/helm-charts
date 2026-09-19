@@ -1,0 +1,11 @@
+agent:
+  controlPlaneEnabled: false
+providers:
+  kubernetes:
+    enabled: true
+    policy:
+      allowedNamespaces:
+        - default
+      allowClusterScoped: false
+persistence:
+  enabled: false

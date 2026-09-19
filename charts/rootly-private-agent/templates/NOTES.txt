@@ -1,0 +1,16 @@
+Rootly Private Agent {{ .Chart.AppVersion }} has been installed.
+
+This chart is an early preview. The agent opens outbound connections only; no
+Service or Ingress is created.
+
+Check its status:
+
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+  kubectl logs -n {{ .Release.Namespace }} deployment/{{ include "rootly-private-agent.fullname" . }}
+
+The chart grants read-only access to the documented Kubernetes resources. Pod
+logs remain disabled unless providers.kubernetes.policy.allowPodLogs is true.
+Secrets and workload mutation permissions are never granted.
+
+Runtime license: https://github.com/rootlyhq/helm-charts/tree/master/charts/rootly-private-agent/LICENSES
+Documentation: https://docs.rootly.com/private-agent#rootly-private-agent
