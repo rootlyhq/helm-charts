@@ -26,17 +26,19 @@
     },
     "httpRequestHeader": {
       "type": "string",
+      "maxLength": 255,
       "allOf": [
         { "pattern": "^[!#$%&'*+.^_`|~0-9A-Za-z-]+$" },
         {
           "not": {
-            "pattern": "^(?i:authorization|proxy-authorization|cookie|host|content-length|content-type|transfer-encoding|connection|upgrade|te|trailer|proxy-connection)$"
+            "pattern": "^(?i:authorization|proxy-authorization|cookie|host|content-length|content-type|transfer-encoding|connection|upgrade|te|trailer|proxy-connection|forwarded|x-forwarded-.+|x-real-ip|x-http-method|x-http-method-override|x-method-override|x-original-method|x-original-url|x-original-uri|x-rewrite-url)$"
           }
         }
       ]
     },
     "httpResponseHeader": {
       "type": "string",
+      "maxLength": 255,
       "allOf": [
         { "pattern": "^[!#$%&'*+.^_`|~0-9A-Za-z-]+$" },
         { "not": { "pattern": "^(?i:authorization|proxy-authenticate|set-cookie|www-authenticate)$" } }

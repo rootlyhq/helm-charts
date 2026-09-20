@@ -201,6 +201,9 @@ jobs:
             '[{"id":"mixed-case-header-auth","base_url":"https://internal-api","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"],"header_files":{"Authorization":"/run/secrets/http/token"}}]' \
             'mixed-case Authorization through header_files'
           assert_invalid_http \
+            '[{"id":"method-override","base_url":"https://internal-api","allowed_methods":["POST"],"allowed_path_prefixes":["/v1"],"allowed_request_headers":["X-HTTP-Method-Override"]}]' \
+            'an HTTP method-override request header'
+          assert_invalid_http \
             '[{"id":"conflict","base_url":"https://internal-api","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"],"bearer_token_file":"/run/secrets/http/token","username_file":"/run/secrets/http/username","password_file":"/run/secrets/http/password"}]' \
             'multiple Authorization mechanisms'
 
