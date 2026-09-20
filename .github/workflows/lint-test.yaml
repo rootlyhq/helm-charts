@@ -43,14 +43,15 @@ jobs:
         run: |
           changed=$(ct list-changed --config ct.yaml)
           pending=()
+          releasable=()
           while IFS= read -r chart; do
             if [[ -f "$chart/.release-pending" ]]; then
               current_version=$(helm show chart "$chart" | awk '$1 == "version:" { print $2 }')
-              current_app_version=$(helm show chart "$chart" | awk '$1 == "appVersion:" { gsub(/\"/, "", $2); print $2 }')
+              current_app_version=$(helm show chart "$chart" | awk '$1 == "appVersion:" { gsub(/"/, "", $2); print $2 }')
               previous_chart=$(mktemp)
               git show "origin/master:$chart/Chart.yaml" > "$previous_chart"
               previous_version=$(awk '$1 == "version:" { print $2 }' "$previous_chart")
-              previous_app_version=$(awk '$1 == "appVersion:" { gsub(/\"/, "", $2); print $2 }' "$previous_chart")
+              previous_app_version=$(awk '$1 == "appVersion:" { gsub(/"/, "", $2); print $2 }' "$previous_chart")
               rm -f "$previous_chart"
               if [[ "$current_version" != "$previous_version" || "$current_app_version" != "$previous_app_version" ]]; then
                 echo "$chart is release-pending, so version and appVersion must remain unchanged."
@@ -58,15 +59,17 @@ jobs:
               fi
               ct lint --config ct.yaml --charts "$chart"
               pending+=("$chart")
+            else
+              releasable+=("$chart")
             fi
           done <<< "$changed"
 
-          if (( ${#pending[@]} > 0 )); then
-            git checkout origin/master -- "${pending[@]}"
+          if (( ${#pending[@]} > 0 && ${#releasable[@]} > 0 )); then
+            echo "Release-pending and releasable chart changes must use separate pull requests."
+            exit 1
           fi
-          ct lint --config ct.yaml
-          if (( ${#pending[@]} > 0 )); then
-            git checkout "$GITHUB_SHA" -- "${pending[@]}"
+          if (( ${#pending[@]} == 0 )); then
+            ct lint --config ct.yaml
           fi
 
       - name: Verify optional database provider rendering
