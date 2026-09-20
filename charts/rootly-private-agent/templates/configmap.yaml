@@ -46,7 +46,11 @@ data:
         {{- toYaml .Values.providers.loki | nindent 8 }}
       mcp:
         {{- toYaml .Values.providers.mcp | nindent 8 }}
+      {{- with .Values.providers.postgresql }}
       postgresql:
-        {{- toYaml .Values.providers.postgresql | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.providers.mysql }}
       mysql:
-        {{- toYaml .Values.providers.mysql | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

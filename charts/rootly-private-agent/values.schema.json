@@ -37,7 +37,7 @@
     },
     "providers": {
       "type": "object",
-      "required": ["kubernetes", "prometheus", "loki", "mcp", "postgresql", "mysql"],
+      "required": ["kubernetes", "prometheus", "loki", "mcp"],
       "properties": {
         "kubernetes": {
           "type": "object",
