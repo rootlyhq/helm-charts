@@ -139,9 +139,10 @@ jobs:
           grep -q 'id: incidents-production' <<<"$http_config"
           grep -q 'bearer_token_file: /run/secrets/http/token' <<<"$http_config"
           http_variants_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false \
-            --set-json 'providers.http=[{"id":"oauth-api","base_url":"https://oauth-api.internal","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"],"oauth2_client_credentials":{"token_url":"https://identity.internal/oauth/token","client_id_file":"/run/secrets/oauth/id","client_secret_file":"/run/secrets/oauth/secret","scopes":["api.read"]}},{"id":"mtls-api","base_url":"https://mtls-api.internal","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"],"ca_bundle_file":"/run/secrets/mtls/ca.crt","client_certificate_file":"/run/secrets/mtls/client.crt","client_key_file":"/run/secrets/mtls/client.key"},{"id":"development-api","base_url":"http://development-api.internal","allow_insecure_http":true,"allowed_methods":["GET"],"allowed_path_prefixes":["/v1"]}]')
+            --set-json 'providers.http=[{"id":"oauth-api","base_url":"https://oauth-api.internal","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"],"oauth2_client_credentials":{"token_url":"https://identity.internal/oauth/token","client_id_file":"/run/secrets/oauth/id","client_secret_file":"/run/secrets/oauth/secret","scopes":["api.read"],"header_files":{"X-Identity-Tenant":"/run/secrets/oauth/tenant"}}},{"id":"mtls-api","base_url":"https://mtls-api.internal","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"],"ca_bundle_file":"/run/secrets/mtls/ca.crt","client_certificate_file":"/run/secrets/mtls/client.crt","client_key_file":"/run/secrets/mtls/client.key"},{"id":"development-api","base_url":"http://development-api.internal","allow_insecure_http":true,"allowed_methods":["GET"],"allowed_path_prefixes":["/v1"]}]')
           grep -q 'id: oauth-api' <<<"$http_variants_config"
           grep -q 'token_url: https://identity.internal/oauth/token' <<<"$http_variants_config"
+          grep -q 'X-Identity-Tenant: /run/secrets/oauth/tenant' <<<"$http_variants_config"
           grep -q 'id: mtls-api' <<<"$http_variants_config"
           grep -q 'client_certificate_file: /run/secrets/mtls/client.crt' <<<"$http_variants_config"
           grep -q 'id: development-api' <<<"$http_variants_config"
@@ -166,6 +167,9 @@ jobs:
           assert_invalid_http \
             '[{"id":"oauth-userinfo","base_url":"https://internal-api","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"],"oauth2_client_credentials":{"token_url":"https://client:secret@identity/token","client_id_file":"/run/secrets/oauth/id","client_secret_file":"/run/secrets/oauth/secret"}}]' \
             'credentials in an OAuth token URL'
+          assert_invalid_http \
+            '[{"id":"oauth-header-auth","base_url":"https://internal-api","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"],"oauth2_client_credentials":{"token_url":"https://identity/token","client_id_file":"/run/secrets/oauth/id","client_secret_file":"/run/secrets/oauth/secret","header_files":{"Authorization":"/run/secrets/oauth/token"}}}]' \
+            'Authorization through OAuth token header_files'
           assert_invalid_http \
             '[{"id":"bad-port","base_url":"https://internal-api:99999","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"]}]' \
             'an out-of-range base URL port'

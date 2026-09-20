@@ -156,9 +156,15 @@
             "token_url": { "$ref": "#/definitions/httpsEndpoint" },
             "client_id_file": { "type": "string", "pattern": "^/" },
             "client_secret_file": { "type": "string", "pattern": "^/" },
-            "scopes": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
-            "audience": { "type": "string", "minLength": 1 },
-            "client_auth_method": { "enum": ["client_secret_basic", "client_secret_post"] }
+            "scopes": { "type": "array", "maxItems": 32, "uniqueItems": true, "items": { "type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[^ \\t\\r\\n]+$" } },
+            "audience": { "type": "string", "minLength": 1, "maxLength": 2048, "pattern": "^[^\\r\\n]+$" },
+            "client_auth_method": { "enum": ["client_secret_basic", "client_secret_post"] },
+            "header_files": {
+              "type": "object",
+              "maxProperties": 32,
+              "propertyNames": { "$ref": "#/definitions/httpRequestHeader" },
+              "additionalProperties": { "type": "string", "pattern": "^/" }
+            }
           }
         },
         "ca_bundle_file": { "type": "string", "pattern": "^/" },
