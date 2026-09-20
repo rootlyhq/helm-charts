@@ -5,6 +5,7 @@ on:
     paths:
       - "charts/**"
       - "ct.yaml"
+      - ".github/workflows/lint-test.yaml"
 
 permissions:
   contents: read
