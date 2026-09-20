@@ -127,6 +127,12 @@ jobs:
           grep -q 'id: postgresql-test' <<<"$database_config"
           grep -q '^      mysql:' <<<"$database_config"
           grep -q 'id: mysql-test' <<<"$database_config"
+          if helm lint "$chart" --set agent.controlPlaneEnabled=false \
+            --set-json 'providers.mysql=[{"id":"mysql-invalid","host":"mysql.internal","database":"app","username_file":"/run/secrets/mysql/username","password_file":"/run/secrets/mysql/password","allow_insecure":false,"ca_bundle_file":"/run/secrets/mysql/ca.crt","client_key_file":"/run/secrets/mysql/client.key","allowed_schemas":["app"]}]' \
+            >/dev/null 2>&1; then
+            echo "Database provider schema accepted a client key without a certificate."
+            exit 1
+          fi
 
   install:
     runs-on: ubuntu-latest
