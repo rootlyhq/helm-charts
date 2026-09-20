@@ -171,6 +171,15 @@ jobs:
             '[{"id":"bad-ipv6","base_url":"https://[::::]","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"]}]' \
             'a malformed IPv6 base URL'
           assert_invalid_http \
+            '[{"id":"path-traversal","base_url":"https://internal-api","allowed_methods":["GET"],"allowed_path_prefixes":["/v1/../admin"]}]' \
+            'a traversal path prefix'
+          assert_invalid_http \
+            '[{"id":"scheme-relative-path","base_url":"https://internal-api","allowed_methods":["GET"],"allowed_path_prefixes":["//another-host/v1"]}]' \
+            'a scheme-relative path prefix'
+          assert_invalid_http \
+            '[{"id":"health-query","base_url":"https://internal-api","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"],"health_check_path":"/health?full=true"}]' \
+            'a query in a health-check path'
+          assert_invalid_http \
             '[{"id":"oauth-userinfo","base_url":"https://internal-api","allowed_methods":["GET"],"allowed_path_prefixes":["/v1"],"oauth2_client_credentials":{"token_url":"https://client:secret@identity/token","client_id_file":"/run/secrets/oauth/id","client_secret_file":"/run/secrets/oauth/secret"}}]' \
             'credentials in an OAuth token URL'
           assert_invalid_http \
