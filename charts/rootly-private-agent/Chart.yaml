@@ -2,8 +2,8 @@ apiVersion: v2
 name: rootly-private-agent
 description: Outbound-only private infrastructure access for Rootly AI SRE
 type: application
-version: 0.1.0
-appVersion: "0.1.0-beta.5"
+version: 0.1.1
+appVersion: "0.1.0-beta.7"
 home: https://rootly.com
 icon: https://avatars.githubusercontent.com/u/64895812
 sources:
@@ -22,4 +22,6 @@ annotations:
   artifacthub.io/prerelease: "true"
   artifacthub.io/changes: |
     - kind: added
-      description: Initial early-preview release of Rootly Private Agent.
+      description: Add PostgreSQL and MySQL provider configuration.
+    - kind: changed
+      description: Update Rootly Private Agent to v0.1.0-beta.7.

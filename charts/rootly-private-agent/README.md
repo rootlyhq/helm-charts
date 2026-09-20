@@ -81,7 +81,7 @@ with the private agent release workflow. With Cosign 3 or newer, resolve the
 digest directly from the public registry and verify its keyless signature:
 
 ```sh
-VERSION=0.1.0-beta.5
+VERSION=0.1.0-beta.7
 DIGEST="$(docker buildx imagetools inspect \
   "rootlyhub/rootly-private-agent:${VERSION}" \
   --format '{{.Manifest.Digest}}')"
