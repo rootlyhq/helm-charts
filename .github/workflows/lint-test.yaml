@@ -51,12 +51,17 @@ jobs:
           }
 
           changed=$(ct list-changed --config ct.yaml)
+          release_pending_chart="charts/rootly-private-agent"
           pending=()
           releasable=()
           while IFS= read -r chart; do
             base_pending=false
             if git cat-file -e "origin/master:$chart/.release-pending" 2>/dev/null; then
               base_pending=true
+            fi
+            if [[ ( -f "$chart/.release-pending" || "$base_pending" == true ) && "$chart" != "$release_pending_chart" ]]; then
+              echo ".release-pending is currently supported only for $release_pending_chart."
+              exit 1
             fi
             if [[ -f "$chart/.release-pending" ]]; then
               current_version=$(helm show chart "$chart" | awk '$1 == "version:" { print $2 }')
