@@ -66,11 +66,26 @@
             "required": ["allow_insecure_http"],
             "properties": { "allow_insecure_http": { "const": true } }
           }
+        },
+        {
+          "not": {
+            "anyOf": [
+              { "required": ["bearer_token_file", "authorization_file"] },
+              { "required": ["bearer_token_file", "username_file"] },
+              { "required": ["bearer_token_file", "oauth2_client_credentials"] },
+              { "required": ["authorization_file", "username_file"] },
+              { "required": ["authorization_file", "oauth2_client_credentials"] },
+              { "required": ["username_file", "oauth2_client_credentials"] }
+            ]
+          }
         }
       ],
       "properties": {
         "id": { "type": "string", "minLength": 1, "maxLength": 255 },
-        "base_url": { "type": "string", "pattern": "^https?://[^[:space:]]+$" },
+        "base_url": {
+          "type": "string",
+          "pattern": "^https?://(?:\\[[0-9A-Fa-f:.]+\\]|[^/@:\\s]+)(?::[0-9]{1,5})?(?:/[^\\s?#]*)?$"
+        },
         "allow_insecure_http": { "type": "boolean" },
         "allowed_methods": {
           "type": "array",
@@ -115,7 +130,10 @@
           "additionalProperties": false,
           "required": ["token_url", "client_id_file", "client_secret_file"],
           "properties": {
-            "token_url": { "type": "string", "pattern": "^https://[^[:space:]]+$" },
+            "token_url": {
+              "type": "string",
+              "pattern": "^https://(?:\\[[0-9A-Fa-f:.]+\\]|[^/@:\\s]+)(?::[0-9]{1,5})?(?:/[^\\s?#]*)?$"
+            },
             "client_id_file": { "type": "string", "pattern": "^/" },
             "client_secret_file": { "type": "string", "pattern": "^/" },
             "scopes": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
