@@ -121,8 +121,8 @@ jobs:
             exit 1
           fi
           database_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false \
-            --set-json 'providers.postgresql=[{"id":"postgresql-test"}]' \
-            --set-json 'providers.mysql=[{"id":"mysql-test"}]')
+            --set-json 'providers.postgresql=[{"id":"postgresql-test","host":"postgresql.internal","database":"app","username_file":"/run/secrets/postgresql/username","password_file":"/run/secrets/postgresql/password","allow_insecure":true,"allowed_schemas":["app"]}]' \
+            --set-json 'providers.mysql=[{"id":"mysql-test","host":"mysql.internal","database":"app","username_file":"/run/secrets/mysql/username","password_file":"/run/secrets/mysql/password","allow_insecure":true,"allowed_schemas":["app"]}]')
           grep -q '^      postgresql:' <<<"$database_config"
           grep -q '^        - id: postgresql-test$' <<<"$database_config"
           grep -q '^      mysql:' <<<"$database_config"
