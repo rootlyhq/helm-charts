@@ -41,25 +41,59 @@ jobs:
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
         run: |
+          image_value() {
+            awk -v key="$2" '
+              /^image:$/ { in_image=1; next }
+              in_image && /^[^ ]/ { exit }
+              in_image && $1 == key ":" { gsub(/"/, "", $2); print $2; exit }
+            ' "$1"
+          }
+
           changed=$(ct list-changed --config ct.yaml)
           pending=()
           releasable=()
           while IFS= read -r chart; do
+            base_pending=false
+            if git cat-file -e "origin/master:$chart/.release-pending" 2>/dev/null; then
+              base_pending=true
+            fi
             if [[ -f "$chart/.release-pending" ]]; then
               current_version=$(helm show chart "$chart" | awk '$1 == "version:" { print $2 }')
               current_app_version=$(helm show chart "$chart" | awk '$1 == "appVersion:" { gsub(/"/, "", $2); print $2 }')
               previous_chart=$(mktemp)
+              previous_values=$(mktemp)
               git show "origin/master:$chart/Chart.yaml" > "$previous_chart"
+              git show "origin/master:$chart/values.yaml" > "$previous_values"
               previous_version=$(awk '$1 == "version:" { print $2 }' "$previous_chart")
               previous_app_version=$(awk '$1 == "appVersion:" { gsub(/"/, "", $2); print $2 }' "$previous_chart")
-              rm -f "$previous_chart"
-              if [[ "$current_version" != "$previous_version" || "$current_app_version" != "$previous_app_version" ]]; then
-                echo "$chart is release-pending, so version and appVersion must remain unchanged."
+              current_tag=$(image_value "$chart/values.yaml" tag)
+              current_digest=$(image_value "$chart/values.yaml" digest)
+              previous_tag=$(image_value "$previous_values" tag)
+              previous_digest=$(image_value "$previous_values" digest)
+              rm -f "$previous_chart" "$previous_values"
+              if [[ "$current_version" != "$previous_version" || "$current_app_version" != "$previous_app_version" ||
+                    "$current_tag" != "$previous_tag" || "$current_digest" != "$previous_digest" ]]; then
+                echo "$chart is release-pending, so chart, app, and image versions must remain unchanged."
                 exit 1
               fi
-              ct lint --config ct.yaml --charts "$chart"
+              ct lint --config ct.yaml --check-version-increment=false --charts "$chart"
               pending+=("$chart")
             else
+              if [[ "$base_pending" == true ]]; then
+                previous_chart=$(mktemp)
+                previous_values=$(mktemp)
+                git show "origin/master:$chart/Chart.yaml" > "$previous_chart"
+                git show "origin/master:$chart/values.yaml" > "$previous_values"
+                current_app_version=$(helm show chart "$chart" | awk '$1 == "appVersion:" { gsub(/"/, "", $2); print $2 }')
+                previous_app_version=$(awk '$1 == "appVersion:" { gsub(/"/, "", $2); print $2 }' "$previous_chart")
+                current_digest=$(image_value "$chart/values.yaml" digest)
+                previous_digest=$(image_value "$previous_values" digest)
+                rm -f "$previous_chart" "$previous_values"
+                if [[ "$current_app_version" == "$previous_app_version" || -z "$current_digest" || "$current_digest" == "$previous_digest" ]]; then
+                  echo "$chart is leaving release-pending state, so appVersion and the pinned image digest must be updated."
+                  exit 1
+                fi
+              fi
               releasable+=("$chart")
             fi
           done <<< "$changed"

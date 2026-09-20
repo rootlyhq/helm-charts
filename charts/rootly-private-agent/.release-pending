@@ -1,2 +1,3 @@
 Database provider configuration is tested here before its matching agent image is released.
-Remove this marker and bump both version and appVersion when publishing the chart.
+While this marker exists, chart version, appVersion, image tag, and image digest stay unchanged.
+To publish, remove this marker, bump version and appVersion, and pin the compatible new image digest.
