@@ -6,6 +6,7 @@ on:
       - "charts/**"
       - "ct.yaml"
       - ".github/workflows/lint-test.yaml"
+      - ".github/workflows/release.yaml"
 
 permissions:
   contents: read
@@ -118,7 +119,9 @@ jobs:
             --set-json 'providers.postgresql=[{"id":"postgresql-test"}]' \
             --set-json 'providers.mysql=[{"id":"mysql-test"}]')
           grep -q '^      postgresql:' <<<"$database_config"
+          grep -q '^        - id: postgresql-test$' <<<"$database_config"
           grep -q '^      mysql:' <<<"$database_config"
+          grep -q '^        - id: mysql-test$' <<<"$database_config"
 
   install:
     runs-on: ubuntu-latest
