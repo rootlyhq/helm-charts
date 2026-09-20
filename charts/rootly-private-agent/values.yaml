@@ -54,6 +54,8 @@ providers:
   prometheus: []
   loki: []
   mcp: []
+  postgresql: []
+  mysql: []
 
 serviceAccount:
   create: true

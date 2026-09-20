@@ -5,8 +5,8 @@
 
 Rootly Private Agent runs inside a customer Kubernetes cluster and gives Rootly
 AI SRE outbound-only, policy-bounded access to private infrastructure. The
-combined runtime supports Kubernetes, Prometheus, Loki, and allowlisted
-Streamable HTTP MCP providers.
+combined runtime supports Kubernetes, Prometheus, Loki, PostgreSQL, MySQL, and
+allowlisted Streamable HTTP MCP providers.
 
 ## Install
 
@@ -61,9 +61,9 @@ Enabling `providers.kubernetes.policy.allowPodLogs` additionally grants `get` on
 
 ## Private provider credentials
 
-Prometheus, Loki, MCP, and custom CA credentials must be mounted as files using
-`extraVolumes` and `extraVolumeMounts`; do not put secret values in Helm values.
-Provider configuration then references those mounted paths. See the
+Prometheus, Loki, PostgreSQL, MySQL, MCP, and custom CA credentials must be
+mounted as files using `extraVolumes` and `extraVolumeMounts`; do not put secret
+values in Helm values. Provider configuration then references those mounted paths. See the
 [Private Agent documentation](https://docs.rootly.com/private-agent#rootly-private-agent).
 
 ## NetworkPolicy

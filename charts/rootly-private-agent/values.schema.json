@@ -37,7 +37,7 @@
     },
     "providers": {
       "type": "object",
-      "required": ["kubernetes", "prometheus", "loki", "mcp"],
+      "required": ["kubernetes", "prometheus", "loki", "mcp", "postgresql", "mysql"],
       "properties": {
         "kubernetes": {
           "type": "object",
@@ -79,7 +79,9 @@
         },
         "prometheus": { "type": "array", "maxItems": 16 },
         "loki": { "type": "array", "maxItems": 16 },
-        "mcp": { "type": "array", "maxItems": 16 }
+        "mcp": { "type": "array", "maxItems": 16 },
+        "postgresql": { "type": "array", "maxItems": 16 },
+        "mysql": { "type": "array", "maxItems": 16 }
       }
     },
     "persistence": {
