@@ -3,6 +3,10 @@
 > **Early preview:** interfaces, permissions, and configuration may change before
 > general availability.
 
+> **Unreleased:** generic HTTP provider configuration is staged for the next
+> compatible chart and agent image release. The currently published chart does
+> not include this provider yet.
+
 Rootly Private Agent runs inside a customer Kubernetes cluster and gives Rootly
 AI SRE outbound-only, policy-bounded access to private infrastructure. The
 combined runtime supports Kubernetes, Prometheus, Loki, allowlisted Streamable
