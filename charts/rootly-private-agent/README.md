@@ -61,9 +61,11 @@ Enabling `providers.kubernetes.policy.allowPodLogs` additionally grants `get` on
 
 ## Private provider credentials
 
-Prometheus, Loki, MCP, and custom CA credentials must be mounted as files using
-`extraVolumes` and `extraVolumeMounts`; do not put secret values in Helm values.
-Provider configuration then references those mounted paths. See the
+Prometheus, Loki, MCP, PostgreSQL, MySQL, and custom CA credentials must be
+mounted as files using `extraVolumes` and `extraVolumeMounts`; do not put secret
+values, database passwords, or inline DSNs in Helm values. Database providers
+reference mounted username, password, CA, and optional client certificate/key
+paths, and reload that material when opening new connections. See the
 [Private Agent documentation](https://docs.rootly.com/private-agent#rootly-private-agent).
 
 ## NetworkPolicy
@@ -79,7 +81,7 @@ with the private agent release workflow. With Cosign 3 or newer, resolve the
 digest directly from the public registry and verify its keyless signature:
 
 ```sh
-VERSION=0.1.0-beta.5
+VERSION=0.1.0-beta.7
 DIGEST="$(docker buildx imagetools inspect \
   "rootlyhub/rootly-private-agent:${VERSION}" \
   --format '{{.Manifest.Digest}}')"
