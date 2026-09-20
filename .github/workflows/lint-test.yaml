@@ -40,10 +40,36 @@ jobs:
 
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct lint --config ct.yaml
+        run: |
+          changed=$(ct list-changed --config ct.yaml)
+          pending=()
+          while IFS= read -r chart; do
+            if [[ -f "$chart/.release-pending" ]]; then
+              current_version=$(helm show chart "$chart" | awk '$1 == "version:" { print $2 }')
+              current_app_version=$(helm show chart "$chart" | awk '$1 == "appVersion:" { gsub(/\"/, "", $2); print $2 }')
+              previous_chart=$(mktemp)
+              git show "origin/master:$chart/Chart.yaml" > "$previous_chart"
+              previous_version=$(awk '$1 == "version:" { print $2 }' "$previous_chart")
+              previous_app_version=$(awk '$1 == "appVersion:" { gsub(/\"/, "", $2); print $2 }' "$previous_chart")
+              rm -f "$previous_chart"
+              if [[ "$current_version" != "$previous_version" || "$current_app_version" != "$previous_app_version" ]]; then
+                echo "$chart is release-pending, so version and appVersion must remain unchanged."
+                exit 1
+              fi
+              ct lint --config ct.yaml --charts "$chart"
+              pending+=("$chart")
+            fi
+          done <<< "$changed"
+
+          if (( ${#pending[@]} > 0 )); then
+            git checkout origin/master -- "${pending[@]}"
+          fi
+          ct lint --config ct.yaml
+          if (( ${#pending[@]} > 0 )); then
+            git checkout "$GITHUB_SHA" -- "${pending[@]}"
+          fi
 
       - name: Verify optional database provider rendering
-        if: steps.list-changed.outputs.changed == 'true'
         run: |
           chart=charts/rootly-private-agent
           default_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false)

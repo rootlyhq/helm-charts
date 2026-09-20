@@ -1,0 +1,2 @@
+Database provider configuration is tested here before its matching agent image is released.
+Remove this marker and bump both version and appVersion when publishing the chart.

@@ -27,6 +27,17 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
 
+      - name: Exclude release-pending charts
+        run: |
+          shopt -s nullglob
+          pending_dir="$RUNNER_TEMP/release-pending-charts"
+          mkdir -p "$pending_dir"
+          for marker in charts/*/.release-pending; do
+            chart_dir=$(dirname "$marker")
+            echo "Excluding release-pending chart: $chart_dir"
+            mv "$chart_dir" "$pending_dir/"
+          done
+
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@a0d2dc62c5e491af8ef6ba64a2e02bcf3fb33aa1 # v1.7.0
         with:
