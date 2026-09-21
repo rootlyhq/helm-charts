@@ -3,15 +3,16 @@
 > **Early preview:** interfaces, permissions, and configuration may change before
 > general availability.
 
-> **Unreleased:** generic HTTP and Grafana Tempo provider configuration is
-> staged for the next compatible chart and agent image release. The currently
+> **Unreleased:** generic HTTP, Grafana Tempo, and Argo CD provider configuration
+> is staged for the next compatible chart and agent image release. The currently
 > published chart does not include these providers yet.
 
 Rootly Private Agent runs inside a customer Kubernetes cluster and gives Rootly
 AI SRE outbound-only, policy-bounded access to private infrastructure. The
 combined runtime supports Kubernetes, Prometheus, Loki, allowlisted Streamable
 HTTP MCP providers, databases, fixed-origin internal HTTP APIs, and Grafana
-Tempo trace queries.
+Tempo trace queries. The native Argo CD adapter adds bounded, read-only GitOps
+application and deployment context.
 
 ## Install
 
@@ -66,15 +67,40 @@ Enabling `providers.kubernetes.policy.allowPodLogs` additionally grants `get` on
 
 ## Private provider credentials
 
-Prometheus, Loki, Tempo, MCP, PostgreSQL, MySQL, internal HTTP, and custom CA
+Prometheus, Loki, Tempo, Argo CD, MCP, PostgreSQL, MySQL, internal HTTP, and custom CA
 credentials must be mounted as files using `extraVolumes` and
 `extraVolumeMounts`; do not put secret values, database passwords, or inline
 DSNs in Helm values. Database and HTTP providers reference mounted credential,
 CA, and optional client certificate/key paths, and reload rotating credential
 files without placing their contents in the rendered ConfigMap. See the
 [Private Agent documentation](https://docs.rootly.com/private-agent#rootly-private-agent),
-[Grafana Tempo guide](https://docs.rootly.com/private-agent-tempo), and
+[Grafana Tempo guide](https://docs.rootly.com/private-agent-tempo),
+[Argo CD guide](https://docs.rootly.com/private-agent-argocd), and
 [internal HTTP guide](https://docs.rootly.com/private-agent-http).
+
+For Argo CD, mount a dedicated read-only account token and reference its file:
+
+```yaml
+providers:
+  argocd:
+    - id: deployments-production
+      url: https://argocd.internal
+      token_file: /run/secrets/argocd/token
+      policy:
+        allowed_projects: [payments, platform]
+
+extraVolumes:
+  - name: argocd-token
+    secret:
+      secretName: rootly-private-agent-argocd
+extraVolumeMounts:
+  - name: argocd-token
+    mountPath: /run/secrets/argocd
+    readOnly: true
+```
+
+Do not use an Argo CD administrator token. Cluster inventory is not advertised
+unless `policy.allow_cluster_inventory` is explicitly enabled.
 
 ## NetworkPolicy
 

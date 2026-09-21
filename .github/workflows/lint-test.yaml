@@ -5,6 +5,7 @@ on:
     paths:
       - "charts/**"
       - "ct.yaml"
+      - ".github/actionlint.yaml"
       - ".github/workflows/lint-test.yaml"
       - ".github/workflows/release.yaml"
 
@@ -13,7 +14,7 @@ permissions:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -27,6 +28,15 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.27.1"
+          cache: false
+
+      - name: Lint workflows
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 -config-file .github/actionlint.yaml
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@6ec842c01de15ebb84c8627d2744a0c2f2755c9f # v2.8.0
@@ -116,7 +126,7 @@ jobs:
         run: |
           chart=charts/rootly-private-agent
           default_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false)
-          if grep -qE '^      (tempo|postgresql|mysql|http):' <<<"$default_config"; then
+          if grep -qE '^      (tempo|argocd|postgresql|mysql|http):' <<<"$default_config"; then
             echo "Empty optional providers must be omitted for compatibility with earlier agent images."
             exit 1
           fi
@@ -160,6 +170,37 @@ jobs:
             'TLS settings on a plaintext endpoint'
           assert_invalid_tempo \
             '[{"id":"unbounded","url":"https://tempo.internal","policy":{"maximum_traces":101}}]' \
+            'an out-of-range policy value'
+          argocd_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false \
+            --set-json 'providers.argocd=[{"id":"deployments-production","url":"https://argocd.internal","token_file":"/run/secrets/argocd/token","policy":{"allowed_projects":["payments"],"allow_cluster_inventory":false,"maximum_resources":500}}]')
+          grep -q '^      argocd:' <<<"$argocd_config"
+          grep -q 'id: deployments-production' <<<"$argocd_config"
+          grep -q 'token_file: /run/secrets/argocd/token' <<<"$argocd_config"
+          assert_invalid_argocd() {
+            local values="$1"
+            local reason="$2"
+            if helm lint "$chart" --set agent.controlPlaneEnabled=false --set-json "providers.argocd=$values" >/dev/null 2>&1; then
+              echo "Argo CD provider schema accepted $reason."
+              exit 1
+            fi
+          }
+          assert_invalid_argocd \
+            '[{"id":"missing-token","url":"https://argocd.internal"}]' \
+            'a missing token file'
+          assert_invalid_argocd \
+            '[{"id":"unsafe","url":"http://argocd.internal","token_file":"/run/secrets/argocd/token"}]' \
+            'plaintext HTTP without explicit opt-in'
+          assert_invalid_argocd \
+            '[{"id":"userinfo","url":"https://admin:secret@argocd.internal","token_file":"/run/secrets/argocd/token"}]' \
+            'credentials in the endpoint URL'
+          assert_invalid_argocd \
+            '[{"id":"partial-mtls","url":"https://argocd.internal","token_file":"/run/secrets/argocd/token","client_key_file":"/run/secrets/argocd/client.key"}]' \
+            'a client key without a certificate'
+          assert_invalid_argocd \
+            '[{"id":"plaintext-tls","url":"http://argocd.internal","allow_insecure_http":true,"token_file":"/run/secrets/argocd/token","ca_bundle_file":"/run/secrets/argocd/ca.crt"}]' \
+            'TLS settings on a plaintext endpoint'
+          assert_invalid_argocd \
+            '[{"id":"unbounded","url":"https://argocd.internal","token_file":"/run/secrets/argocd/token","policy":{"maximum_resources":2001}}]' \
             'an out-of-range policy value'
           if helm lint "$chart" --set agent.controlPlaneEnabled=false \
             --set-json 'providers.mysql=[{"id":"mysql-invalid","host":"mysql.internal","database":"app","username_file":"/run/secrets/mysql/username","password_file":"/run/secrets/mysql/password","allow_insecure":false,"ca_bundle_file":"/run/secrets/mysql/ca.crt","client_key_file":"/run/secrets/mysql/client.key","allowed_schemas":["app"]}]' \
