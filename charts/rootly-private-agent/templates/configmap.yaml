@@ -54,3 +54,7 @@ data:
       mysql:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.providers.http }}
+      http:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
