@@ -3,14 +3,15 @@
 > **Early preview:** interfaces, permissions, and configuration may change before
 > general availability.
 
-> **Unreleased:** generic HTTP provider configuration is staged for the next
-> compatible chart and agent image release. The currently published chart does
-> not include this provider yet.
+> **Unreleased:** generic HTTP and Grafana Tempo provider configuration is
+> staged for the next compatible chart and agent image release. The currently
+> published chart does not include these providers yet.
 
 Rootly Private Agent runs inside a customer Kubernetes cluster and gives Rootly
 AI SRE outbound-only, policy-bounded access to private infrastructure. The
 combined runtime supports Kubernetes, Prometheus, Loki, allowlisted Streamable
-HTTP MCP providers, databases, and fixed-origin internal HTTP APIs.
+HTTP MCP providers, databases, fixed-origin internal HTTP APIs, and Grafana
+Tempo trace queries.
 
 ## Install
 
@@ -65,14 +66,15 @@ Enabling `providers.kubernetes.policy.allowPodLogs` additionally grants `get` on
 
 ## Private provider credentials
 
-Prometheus, Loki, MCP, PostgreSQL, MySQL, internal HTTP, and custom CA
+Prometheus, Loki, Tempo, MCP, PostgreSQL, MySQL, internal HTTP, and custom CA
 credentials must be mounted as files using `extraVolumes` and
 `extraVolumeMounts`; do not put secret values, database passwords, or inline
 DSNs in Helm values. Database and HTTP providers reference mounted credential,
 CA, and optional client certificate/key paths, and reload rotating credential
 files without placing their contents in the rendered ConfigMap. See the
-[Private Agent documentation](https://docs.rootly.com/private-agent#rootly-private-agent)
-and [internal HTTP guide](https://docs.rootly.com/private-agent-http).
+[Private Agent documentation](https://docs.rootly.com/private-agent#rootly-private-agent),
+[Grafana Tempo guide](https://docs.rootly.com/private-agent-tempo), and
+[internal HTTP guide](https://docs.rootly.com/private-agent-http).
 
 ## NetworkPolicy
 

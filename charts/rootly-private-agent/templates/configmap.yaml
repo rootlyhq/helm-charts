@@ -44,6 +44,10 @@ data:
         {{- toYaml .Values.providers.prometheus | nindent 8 }}
       loki:
         {{- toYaml .Values.providers.loki | nindent 8 }}
+      {{- with .Values.providers.tempo }}
+      tempo:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       mcp:
         {{- toYaml .Values.providers.mcp | nindent 8 }}
       {{- with .Values.providers.postgresql }}
