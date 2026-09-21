@@ -132,6 +132,35 @@ jobs:
           grep -q '^      tempo:' <<<"$tempo_config"
           grep -q 'id: traces-production' <<<"$tempo_config"
           grep -q 'tenant_id_file: /run/secrets/tempo/tenant' <<<"$tempo_config"
+          assert_invalid_tempo() {
+            local values="$1"
+            local reason="$2"
+            if helm lint "$chart" --set agent.controlPlaneEnabled=false --set-json "providers.tempo=$values" >/dev/null 2>&1; then
+              echo "Tempo provider schema accepted $reason."
+              exit 1
+            fi
+          }
+          assert_invalid_tempo \
+            '[{"id":"unsafe","url":"http://tempo.internal"}]' \
+            'plaintext HTTP without explicit opt-in'
+          assert_invalid_tempo \
+            '[{"id":"userinfo","url":"https://user:secret@tempo.internal"}]' \
+            'credentials in the endpoint URL'
+          assert_invalid_tempo \
+            '[{"id":"inline-secret","url":"https://tempo.internal","bearer_token":"secret"}]' \
+            'an inline bearer token'
+          assert_invalid_tempo \
+            '[{"id":"conflict","url":"https://tempo.internal","bearer_token_file":"/run/secrets/tempo/token","username_file":"/run/secrets/tempo/username","password_file":"/run/secrets/tempo/password"}]' \
+            'multiple authentication mechanisms'
+          assert_invalid_tempo \
+            '[{"id":"partial-mtls","url":"https://tempo.internal","client_key_file":"/run/secrets/tempo/client.key"}]' \
+            'a client key without a certificate'
+          assert_invalid_tempo \
+            '[{"id":"plaintext-tls","url":"http://tempo.internal","allow_insecure_http":true,"ca_bundle_file":"/run/secrets/tempo/ca.crt"}]' \
+            'TLS settings on a plaintext endpoint'
+          assert_invalid_tempo \
+            '[{"id":"unbounded","url":"https://tempo.internal","policy":{"maximum_traces":101}}]' \
+            'an out-of-range policy value'
           if helm lint "$chart" --set agent.controlPlaneEnabled=false \
             --set-json 'providers.mysql=[{"id":"mysql-invalid","host":"mysql.internal","database":"app","username_file":"/run/secrets/mysql/username","password_file":"/run/secrets/mysql/password","allow_insecure":false,"ca_bundle_file":"/run/secrets/mysql/ca.crt","client_key_file":"/run/secrets/mysql/client.key","allowed_schemas":["app"]}]' \
             >/dev/null 2>&1; then
