@@ -53,6 +53,7 @@ providers:
   # Provider credentials must reference mounted files, never inline secrets.
   prometheus: []
   loki: []
+  tempo: []
   mcp: []
   postgresql: []
   mysql: []

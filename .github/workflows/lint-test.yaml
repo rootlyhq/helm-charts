@@ -116,7 +116,7 @@ jobs:
         run: |
           chart=charts/rootly-private-agent
           default_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false)
-          if grep -qE '^      (postgresql|mysql|http):' <<<"$default_config"; then
+          if grep -qE '^      (tempo|postgresql|mysql|http):' <<<"$default_config"; then
             echo "Empty optional providers must be omitted for compatibility with earlier agent images."
             exit 1
           fi
@@ -127,6 +127,11 @@ jobs:
           grep -q 'id: postgresql-test' <<<"$database_config"
           grep -q '^      mysql:' <<<"$database_config"
           grep -q 'id: mysql-test' <<<"$database_config"
+          tempo_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false \
+            --set-json 'providers.tempo=[{"id":"traces-production","url":"https://tempo.internal/tempo","bearer_token_file":"/run/secrets/tempo/token","tenant_id_file":"/run/secrets/tempo/tenant","policy":{"maximum_traces":20,"maximum_range_seconds":3600}}]')
+          grep -q '^      tempo:' <<<"$tempo_config"
+          grep -q 'id: traces-production' <<<"$tempo_config"
+          grep -q 'tenant_id_file: /run/secrets/tempo/tenant' <<<"$tempo_config"
           if helm lint "$chart" --set agent.controlPlaneEnabled=false \
             --set-json 'providers.mysql=[{"id":"mysql-invalid","host":"mysql.internal","database":"app","username_file":"/run/secrets/mysql/username","password_file":"/run/secrets/mysql/password","allow_insecure":false,"ca_bundle_file":"/run/secrets/mysql/ca.crt","client_key_file":"/run/secrets/mysql/client.key","allowed_schemas":["app"]}]' \
             >/dev/null 2>&1; then

@@ -275,6 +275,7 @@
         },
         "prometheus": { "type": "array", "maxItems": 16 },
         "loki": { "type": "array", "maxItems": 16 },
+        "tempo": { "type": "array", "maxItems": 16 },
         "mcp": { "type": "array", "maxItems": 16 },
         "postgresql": {
           "type": "array",
