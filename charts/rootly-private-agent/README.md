@@ -93,6 +93,9 @@ extraVolumes:
   - name: argocd-token
     secret:
       secretName: rootly-private-agent-argocd
+      items:
+        - key: argocd-token
+          path: token
 extraVolumeMounts:
   - name: argocd-token
     mountPath: /run/secrets/argocd

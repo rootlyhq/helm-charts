@@ -6,14 +6,15 @@ on:
       - "charts/**"
       - "ct.yaml"
       - ".github/actionlint.yaml"
-      - ".github/workflows/lint-test.yaml"
-      - ".github/workflows/release.yaml"
+      - ".github/workflows/**"
 
 permissions:
   contents: read
 
 jobs:
   lint:
+    # Blacksmith provides a fresh managed runner for every job; no persistent
+    # self-hosted machine, internal network, or repository secrets are exposed.
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
