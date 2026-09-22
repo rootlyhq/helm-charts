@@ -174,6 +174,11 @@ extraVolumeMounts:
     readOnly: true
 ```
 
+`tenant_id_file` fixes the Grafana tenant for every request. `enforced_label_matchers`
+is an additional, optional boundary that the agent appends to every profile query.
+Configure at least one of them for shared Pyroscope deployments; omit both only when
+the endpoint itself is intentionally dedicated to this Private Agent's full scope.
+
 For Argo CD, mount a dedicated read-only account token and reference its file:
 
 ```yaml

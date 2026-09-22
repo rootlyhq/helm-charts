@@ -127,7 +127,7 @@ jobs:
         run: |
           chart=charts/rootly-private-agent
           default_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false)
-          if grep -qE '^      (tempo|argocd|postgresql|mysql|http):' <<<"$default_config"; then
+          if grep -qE '^      (tempo|pyroscope|argocd|postgresql|mysql|http):' <<<"$default_config"; then
             echo "Empty optional providers must be omitted for compatibility with earlier agent images."
             exit 1
           fi
@@ -271,6 +271,9 @@ jobs:
           assert_invalid_pyroscope \
             '[{"id":"plaintext-tls","url":"http://pyroscope.internal","allow_insecure_http":true,"ca_bundle_file":"/run/secrets/pyroscope/ca.crt"}]' \
             'TLS settings on a plaintext endpoint'
+          assert_invalid_pyroscope \
+            '[{"id":"empty-scope","url":"https://pyroscope.internal","enforced_label_matchers":""}]' \
+            'an empty configured label scope'
           assert_invalid_pyroscope \
             '[{"id":"unbounded","url":"https://pyroscope.internal","policy":{"maximum_nodes":10001}}]' \
             'an out-of-range policy value'

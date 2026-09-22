@@ -361,7 +361,7 @@
         "ca_bundle_file": { "type": "string", "pattern": "^/" },
         "client_certificate_file": { "type": "string", "pattern": "^/" },
         "client_key_file": { "type": "string", "pattern": "^/" },
-        "enforced_label_matchers": { "type": "string", "maxLength": 8192 },
+        "enforced_label_matchers": { "type": "string", "minLength": 1, "pattern": "\\S", "maxLength": 8192 },
         "policy": {
           "type": "object",
           "additionalProperties": false,
