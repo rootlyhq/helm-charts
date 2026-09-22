@@ -63,6 +63,10 @@ data:
       tempo:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.providers.pyroscope }}
+      pyroscope:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.providers.argocd }}
       argocd:
         {{- toYaml . | nindent 8 }}

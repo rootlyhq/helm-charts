@@ -317,6 +317,67 @@
           }
         }
       }
+    },
+    "pyroscopeProvider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "url"],
+      "dependencies": {
+        "username_file": ["password_file"],
+        "password_file": ["username_file"],
+        "client_certificate_file": ["client_key_file"],
+        "client_key_file": ["client_certificate_file"]
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["url"],
+            "properties": { "url": { "pattern": "^http://" } }
+          },
+          "then": {
+            "required": ["allow_insecure_http"],
+            "properties": { "allow_insecure_http": { "const": true } },
+            "not": {
+              "anyOf": [
+                { "required": ["ca_bundle_file"] },
+                { "required": ["client_certificate_file"] },
+                { "required": ["client_key_file"] }
+              ]
+            }
+          }
+        },
+        {
+          "not": { "required": ["bearer_token_file", "username_file"] }
+        }
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "url": { "$ref": "#/definitions/httpEndpoint" },
+        "allow_insecure_http": { "type": "boolean" },
+        "bearer_token_file": { "type": "string", "pattern": "^/" },
+        "username_file": { "type": "string", "pattern": "^/" },
+        "password_file": { "type": "string", "pattern": "^/" },
+        "tenant_id_file": { "type": "string", "pattern": "^/" },
+        "ca_bundle_file": { "type": "string", "pattern": "^/" },
+        "client_certificate_file": { "type": "string", "pattern": "^/" },
+        "client_key_file": { "type": "string", "pattern": "^/" },
+        "enforced_label_matchers": { "type": "string", "maxLength": 8192 },
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "maximum_concurrency": { "type": "integer", "minimum": 1, "maximum": 8 },
+            "maximum_result_bytes": { "type": "integer", "minimum": 1024, "maximum": 2097152 },
+            "maximum_profile_types": { "type": "integer", "minimum": 1, "maximum": 1000 },
+            "maximum_label_values": { "type": "integer", "minimum": 1, "maximum": 5000 },
+            "maximum_series": { "type": "integer", "minimum": 1, "maximum": 1000 },
+            "maximum_points_per_series": { "type": "integer", "minimum": 1, "maximum": 10000 },
+            "maximum_nodes": { "type": "integer", "minimum": 1, "maximum": 10000 },
+            "maximum_range_seconds": { "type": "integer", "minimum": 1, "maximum": 86400 },
+            "maximum_timeout_seconds": { "type": "integer", "minimum": 1, "maximum": 30 }
+          }
+        }
+      }
     }
   },
   "properties": {
@@ -407,6 +468,11 @@
           "type": "array",
           "maxItems": 16,
           "items": { "$ref": "#/definitions/tempoProvider" }
+        },
+        "pyroscope": {
+          "type": "array",
+          "maxItems": 16,
+          "items": { "$ref": "#/definitions/pyroscopeProvider" }
         },
         "argocd": {
           "type": "array",
