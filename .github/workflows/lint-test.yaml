@@ -346,8 +346,21 @@ jobs:
         id: list-changed
         run: |
           changed=$(ct list-changed --config ct.yaml)
-          if [[ -n "$changed" ]]; then
+          releasable=()
+          while IFS= read -r chart; do
+            if [[ -z "$chart" ]]; then
+              continue
+            fi
+            if [[ -f "$chart/.release-pending" ]]; then
+              echo "Skipping install for release-pending chart $chart."
+              continue
+            fi
+            releasable+=("$chart")
+          done <<< "$changed"
+          if (( ${#releasable[@]} > 0 )); then
+            charts=$(IFS=,; echo "${releasable[*]}")
             echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "charts=$charts" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create kind cluster
@@ -356,4 +369,4 @@ jobs:
 
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct install --config ct.yaml
+        run: ct install --config ct.yaml --charts "${{ steps.list-changed.outputs.charts }}"
