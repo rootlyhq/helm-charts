@@ -201,6 +201,10 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "url", "token_file"],
+      "dependencies": {
+        "client_certificate_file": ["client_key_file"],
+        "client_key_file": ["client_certificate_file"]
+      },
       "allOf": [
         {
           "if": {
@@ -256,10 +260,6 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "bootstrap_servers", "tls"],
-      "dependencies": {
-        "client_certificate_file": ["client_key_file"],
-        "client_key_file": ["client_certificate_file"]
-      },
       "allOf": [
         {
           "if": {
