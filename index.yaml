@@ -55,6 +55,41 @@ entries:
   - annotations:
       artifacthub.io/changes: |
         - kind: added
+          description: Add Grafana Tempo provider configuration.
+        - kind: added
+          description: Add fixed-origin internal HTTP provider configuration.
+        - kind: added
+          description: Add PostgreSQL and MySQL provider configuration.
+        - kind: changed
+          description: Update Rootly Private Agent to v0.1.0-beta.10.
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/prerelease: "true"
+    apiVersion: v2
+    appVersion: 0.1.0-beta.10
+    created: "2026-09-22T03:29:44.217873696Z"
+    description: Outbound-only private infrastructure access for Rootly AI SRE
+    digest: 9a22da965010a129652e7c5d25e5adfecea888f1de8765cb71929626def66d6e
+    home: https://rootly.com
+    icon: https://avatars.githubusercontent.com/u/64895812
+    keywords:
+    - rootly
+    - ai-sre
+    - private-agent
+    - kubernetes
+    maintainers:
+    - email: support@rootly.com
+      name: Rootly
+      url: https://rootly.com
+    name: rootly-private-agent
+    sources:
+    - https://github.com/rootlyhq/helm-charts/tree/master/charts/rootly-private-agent
+    type: application
+    urls:
+    - https://github.com/rootlyhq/helm-charts/releases/download/rootly-private-agent-0.1.2/rootly-private-agent-0.1.2.tgz
+    version: 0.1.2
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
           description: Add PostgreSQL and MySQL provider configuration.
         - kind: changed
           description: Update Rootly Private Agent to v0.1.0-beta.7.
@@ -112,4 +147,4 @@ entries:
     urls:
     - https://github.com/rootlyhq/helm-charts/releases/download/rootly-private-agent-0.1.0/rootly-private-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-20T06:14:04.672463595Z"
+generated: "2026-09-22T03:29:44.217889977Z"
