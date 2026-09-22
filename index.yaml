@@ -54,6 +54,37 @@ entries:
   rootly-private-agent:
   - annotations:
       artifacthub.io/changes: |
+        - kind: changed
+          description: Update Rootly Private Agent to v0.1.0-beta.11.
+        - kind: changed
+          description: Centralize provider admission controls and strict JSON validation.
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/prerelease: "true"
+    apiVersion: v2
+    appVersion: 0.1.0-beta.11
+    created: "2026-09-22T04:08:41.97757687Z"
+    description: Outbound-only private infrastructure access for Rootly AI SRE
+    digest: b52fa392c4177629d707a3ca4a01218a6424f4881439ee3ff020679307230a2b
+    home: https://rootly.com
+    icon: https://avatars.githubusercontent.com/u/64895812
+    keywords:
+    - rootly
+    - ai-sre
+    - private-agent
+    - kubernetes
+    maintainers:
+    - email: support@rootly.com
+      name: Rootly
+      url: https://rootly.com
+    name: rootly-private-agent
+    sources:
+    - https://github.com/rootlyhq/helm-charts/tree/master/charts/rootly-private-agent
+    type: application
+    urls:
+    - https://github.com/rootlyhq/helm-charts/releases/download/rootly-private-agent-0.1.3/rootly-private-agent-0.1.3.tgz
+    version: 0.1.3
+  - annotations:
+      artifacthub.io/changes: |
         - kind: added
           description: Add Grafana Tempo provider configuration.
         - kind: added
@@ -147,4 +178,4 @@ entries:
     urls:
     - https://github.com/rootlyhq/helm-charts/releases/download/rootly-private-agent-0.1.0/rootly-private-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-22T03:29:44.217889977Z"
+generated: "2026-09-22T04:08:41.977598791Z"
