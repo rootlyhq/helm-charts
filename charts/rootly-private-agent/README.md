@@ -3,17 +3,17 @@
 > **Early preview:** interfaces, permissions, and configuration may change before
 > general availability.
 
-> **Unreleased:** generic HTTP, Grafana Tempo, Argo CD, and multi-cluster
-> Kubernetes provider configuration is staged for the next compatible chart and
-> agent image release. The currently published chart does not include these
-> changes yet.
+> **Unreleased:** generic HTTP, Grafana Tempo, Grafana Pyroscope, Argo CD, and
+> multi-cluster Kubernetes provider configuration is staged for the next
+> compatible chart and agent image release. The currently published chart does
+> not include these changes yet.
 
 Rootly Private Agent runs inside a customer Kubernetes cluster and gives Rootly
 AI SRE outbound-only, policy-bounded access to private infrastructure. The
 combined runtime supports Kubernetes, Prometheus, Loki, allowlisted Streamable
-HTTP MCP providers, databases, fixed-origin internal HTTP APIs, and Grafana
-Tempo trace queries. The native Argo CD adapter adds bounded, read-only GitOps
-application and deployment context.
+HTTP MCP providers, databases, fixed-origin internal HTTP APIs, Grafana Tempo
+trace queries, and Grafana Pyroscope profile queries. The native Argo CD adapter
+adds bounded, read-only GitOps application and deployment context.
 
 ## Install
 
@@ -136,16 +136,48 @@ customer data, so scope `allowedNamespaces` and enable logs deliberately.
 
 ## Private provider credentials
 
-Prometheus, Loki, Tempo, Argo CD, MCP, PostgreSQL, MySQL, internal HTTP, and custom CA
-credentials must be mounted as files using `extraVolumes` and
+Prometheus, Loki, Tempo, Pyroscope, Argo CD, MCP, PostgreSQL, MySQL, internal
+HTTP, and custom CA credentials must be mounted as files using `extraVolumes` and
 `extraVolumeMounts`; do not put secret values, database passwords, or inline
 DSNs in Helm values. Database and HTTP providers reference mounted credential,
 CA, and optional client certificate/key paths, and reload rotating credential
 files without placing their contents in the rendered ConfigMap. See the
 [Private Agent documentation](https://docs.rootly.com/private-agent#rootly-private-agent),
 [Grafana Tempo guide](https://docs.rootly.com/private-agent-tempo),
+[Grafana Pyroscope guide](https://docs.rootly.com/private-agent-pyroscope),
 [Argo CD guide](https://docs.rootly.com/private-agent-argocd), and
 [internal HTTP guide](https://docs.rootly.com/private-agent-http).
+
+For Pyroscope, configure one or more direct endpoints or fixed Grafana data
+source proxy prefixes. Keep credentials and tenant IDs in mounted files, and
+use enforced label matchers to keep every query inside an approved population:
+
+```yaml
+providers:
+  pyroscope:
+    - id: profiles-production
+      url: https://pyroscope.internal
+      bearer_token_file: /run/secrets/pyroscope/token
+      tenant_id_file: /run/secrets/pyroscope/tenant
+      enforced_label_matchers: '{environment="production"}'
+      policy:
+        maximum_range_seconds: 3600
+        maximum_nodes: 1024
+
+extraVolumes:
+  - name: pyroscope-credentials
+    secret:
+      secretName: rootly-private-agent-pyroscope
+extraVolumeMounts:
+  - name: pyroscope-credentials
+    mountPath: /run/secrets/pyroscope
+    readOnly: true
+```
+
+`tenant_id_file` fixes the Grafana tenant for every request. `enforced_label_matchers`
+is an additional, optional boundary that the agent appends to every profile query.
+Configure at least one of them for shared Pyroscope deployments; omit both only when
+the endpoint itself is intentionally dedicated to this Private Agent's full scope.
 
 For Argo CD, mount a dedicated read-only account token and reference its file:
 
