@@ -54,10 +54,6 @@ app.kubernetes.io/part-of: rootly-private-connect
 {{- default (include "rootly-private-agent.fullname" .) .Values.agent.name }}
 {{- end }}
 
-{{- define "rootly-private-agent.providerID" -}}
-{{- default (include "rootly-private-agent.agentName" .) .Values.providers.kubernetes.id }}
-{{- end }}
-
 {{- define "rootly-private-agent.image" -}}
 {{- if .Values.image.digest -}}
 {{- printf "%s@%s" .Values.image.repository .Values.image.digest -}}
@@ -73,10 +69,54 @@ app.kubernetes.io/part-of: rootly-private-connect
 {{- if and .Values.agent.controlPlaneEnabled (not .Values.enrollment.token) (not .Values.enrollment.existingSecret) }}
 {{- fail "enrollment.token or enrollment.existingSecret is required when agent.controlPlaneEnabled is true" }}
 {{- end }}
-{{- if and .Values.providers.kubernetes.enabled (not .Values.serviceAccount.create) (eq .Values.serviceAccount.name "") }}
+{{- $inCluster := 0 }}
+{{- $seen := dict }}
+{{- range $index, $provider := .Values.providers.kubernetes }}
+{{- $id := $provider.id }}
+{{- if and (eq $index 0) (eq $id "") }}
+{{- $id = include "rootly-private-agent.agentName" $ }}
+{{- end }}
+{{- if eq $id "" }}
+{{- fail (printf "providers.kubernetes[%d].id is required" $index) }}
+{{- end }}
+{{- if hasKey $seen $id }}
+{{- fail (printf "Kubernetes provider ID %q is duplicated" $id) }}
+{{- end }}
+{{- $_ := set $seen $id true }}
+{{- if eq $provider.kubeconfigFile "" }}
+{{- $inCluster = add1 $inCluster }}
+{{- if ne $provider.context "" }}
+{{- fail (printf "providers.kubernetes[%d].context requires kubeconfigFile" $index) }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if gt $inCluster 1 }}
+{{- fail "at most one Kubernetes provider may omit kubeconfigFile" }}
+{{- end }}
+{{- if and (gt $inCluster 0) (not .Values.serviceAccount.create) (eq .Values.serviceAccount.name "") }}
 {{- fail "serviceAccount.name is required when Kubernetes is enabled and serviceAccount.create is false" }}
 {{- end }}
-{{- if and .Values.rbac.create (not .Values.providers.kubernetes.enabled) }}
-{{- fail "rbac.create must be false when the Kubernetes provider is disabled" }}
+{{- if and .Values.rbac.create (eq $inCluster 0) }}
+{{- fail "rbac.create must be false when no Kubernetes provider uses in-cluster authentication" }}
 {{- end }}
+{{- end }}
+
+{{- define "rootly-private-agent.hasInClusterKubernetes" -}}
+{{- $found := false }}
+{{- range .Values.providers.kubernetes }}
+{{- if eq .kubeconfigFile "" }}
+{{- $found = true }}
+{{- end }}
+{{- end }}
+{{- $found }}
+{{- end }}
+
+{{- define "rootly-private-agent.inClusterPodLogs" -}}
+{{- $allowed := false }}
+{{- range .Values.providers.kubernetes }}
+{{- if and (eq .kubeconfigFile "") .policy.allowPodLogs }}
+{{- $allowed = true }}
+{{- end }}
+{{- end }}
+{{- $allowed }}
 {{- end }}

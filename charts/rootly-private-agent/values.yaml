@@ -30,26 +30,28 @@ enrollment:
 
 providers:
   kubernetes:
-    enabled: true
-    # Defaults to the agent name.
-    id: ""
-    displayName: ""
-    policy:
-      allowedNamespaces:
-        - "*"
-      allowClusterScoped: true
-      defaultListLimit: 500
-      maximumListLimit: 1000
-      defaultWatchSeconds: 30
-      maximumWatchSeconds: 60
-      maximumResultBytes: 2097152
-      # Pod logs may contain credentials or customer data and require opt-in.
-      allowPodLogs: false
-      allowInsecureLogBackendTLS: false
-      defaultLogBytes: 262144
-      maximumLogBytes: 1048576
-      defaultLogSeconds: 30
-      maximumLogSeconds: 60
+    # The first empty ID defaults to the agent name. An entry without a
+    # kubeconfigFile uses this Pod's ServiceAccount; at most one may do so.
+    - id: ""
+      displayName: ""
+      kubeconfigFile: ""
+      context: ""
+      policy:
+        allowedNamespaces:
+          - "*"
+        allowClusterScoped: true
+        defaultListLimit: 500
+        maximumListLimit: 1000
+        defaultWatchSeconds: 30
+        maximumWatchSeconds: 60
+        maximumResultBytes: 2097152
+        # Pod logs may contain credentials or customer data and require opt-in.
+        allowPodLogs: false
+        allowInsecureLogBackendTLS: false
+        defaultLogBytes: 262144
+        maximumLogBytes: 1048576
+        defaultLogSeconds: 30
+        maximumLogSeconds: 60
   # Provider credentials must reference mounted files, never inline secrets.
   prometheus: []
   loki: []

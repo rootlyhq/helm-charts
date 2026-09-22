@@ -3,9 +3,10 @@
 > **Early preview:** interfaces, permissions, and configuration may change before
 > general availability.
 
-> **Unreleased:** generic HTTP, Grafana Tempo, and Argo CD provider configuration
-> is staged for the next compatible chart and agent image release. The currently
-> published chart does not include these providers yet.
+> **Unreleased:** generic HTTP, Grafana Tempo, Argo CD, and multi-cluster
+> Kubernetes provider configuration is staged for the next compatible chart and
+> agent image release. The currently published chart does not include these
+> changes yet.
 
 Rootly Private Agent runs inside a customer Kubernetes cluster and gives Rootly
 AI SRE outbound-only, policy-bounded access to private infrastructure. The
@@ -61,9 +62,68 @@ Gateway API, and `networking.istio.io` resources. It grants `create` only for
 `selfsubjectaccessreviews` and `selfsubjectrulesreviews`; these ask Kubernetes to
 evaluate the agent's own access and do not mutate workloads or RBAC.
 
-Enabling `providers.kubernetes.policy.allowPodLogs` additionally grants `get` on
-`pods/log`. ConfigMaps and logs may contain sensitive customer data, so scope
-`allowedNamespaces` and enable logs deliberately.
+Each `providers.kubernetes[]` entry is one independently named and policy-bounded
+cluster. An entry without `kubeconfigFile` uses the Pod's ServiceAccount; at most
+one entry can use in-cluster authentication. Additional clusters reference an
+absolute kubeconfig path mounted into the Pod and can select an explicit context:
+
+```yaml
+providers:
+  kubernetes:
+    - id: production
+      displayName: Production
+      kubeconfigFile: ""
+      context: ""
+      policy:
+        allowedNamespaces: ["*"]
+        allowClusterScoped: true
+        defaultListLimit: 500
+        maximumListLimit: 1000
+        defaultWatchSeconds: 30
+        maximumWatchSeconds: 60
+        maximumResultBytes: 2097152
+        allowPodLogs: false
+        allowInsecureLogBackendTLS: false
+        defaultLogBytes: 262144
+        maximumLogBytes: 1048576
+        defaultLogSeconds: 30
+        maximumLogSeconds: 60
+    - id: staging
+      displayName: Staging
+      kubeconfigFile: /run/secrets/kubernetes/staging.yaml
+      context: staging
+      policy:
+        allowedNamespaces: ["default", "payments"]
+        allowClusterScoped: false
+        defaultListLimit: 500
+        maximumListLimit: 1000
+        defaultWatchSeconds: 30
+        maximumWatchSeconds: 60
+        maximumResultBytes: 2097152
+        allowPodLogs: true
+        allowInsecureLogBackendTLS: false
+        defaultLogBytes: 262144
+        maximumLogBytes: 1048576
+        defaultLogSeconds: 30
+        maximumLogSeconds: 60
+
+extraVolumes:
+  - name: kubernetes-kubeconfigs
+    secret:
+      secretName: rootly-private-agent-kubeconfigs
+extraVolumeMounts:
+  - name: kubernetes-kubeconfigs
+    mountPath: /run/secrets/kubernetes
+    readOnly: true
+```
+
+The legacy singleton `providers.kubernetes.enabled` shape is intentionally not
+accepted. If every Kubernetes entry uses a mounted kubeconfig, set
+`rbac.create: false`; the Pod then disables ServiceAccount token automounting.
+
+Enabling `providers.kubernetes[].policy.allowPodLogs` for the in-cluster entry
+additionally grants `get` on `pods/log`. ConfigMaps and logs may contain sensitive
+customer data, so scope `allowedNamespaces` and enable logs deliberately.
 
 ## Private provider credentials
 

@@ -357,39 +357,46 @@
       "required": ["kubernetes", "prometheus", "loki", "mcp"],
       "properties": {
         "kubernetes": {
-          "type": "object",
-          "required": ["enabled", "id", "displayName", "policy"],
-          "properties": {
-            "enabled": { "type": "boolean" },
-            "id": { "type": "string", "maxLength": 255 },
-            "displayName": { "type": "string", "maxLength": 255 },
-            "policy": {
-              "type": "object",
-              "required": [
-                "allowedNamespaces", "allowClusterScoped", "defaultListLimit",
-                "maximumListLimit", "defaultWatchSeconds", "maximumWatchSeconds",
-                "maximumResultBytes", "allowPodLogs", "allowInsecureLogBackendTLS",
-                "defaultLogBytes", "maximumLogBytes", "defaultLogSeconds",
-                "maximumLogSeconds"
-              ],
-              "properties": {
-                "allowedNamespaces": {
-                  "type": "array",
-                  "items": { "type": "string", "minLength": 1 },
-                  "uniqueItems": true
-                },
-                "allowClusterScoped": { "type": "boolean" },
-                "defaultListLimit": { "type": "integer", "minimum": 1, "maximum": 1000 },
-                "maximumListLimit": { "type": "integer", "minimum": 1, "maximum": 1000 },
-                "defaultWatchSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
-                "maximumWatchSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
-                "maximumResultBytes": { "type": "integer", "minimum": 1, "maximum": 2097152 },
-                "allowPodLogs": { "type": "boolean" },
-                "allowInsecureLogBackendTLS": { "type": "boolean" },
-                "defaultLogBytes": { "type": "integer", "minimum": 1, "maximum": 1048576 },
-                "maximumLogBytes": { "type": "integer", "minimum": 1, "maximum": 1048576 },
-                "defaultLogSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
-                "maximumLogSeconds": { "type": "integer", "minimum": 1, "maximum": 60 }
+          "type": "array",
+          "maxItems": 17,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "displayName", "kubeconfigFile", "context", "policy"],
+            "properties": {
+              "id": { "type": "string", "maxLength": 255 },
+              "displayName": { "type": "string", "maxLength": 255 },
+              "kubeconfigFile": { "type": "string", "pattern": "^$|^/" },
+              "context": { "type": "string", "maxLength": 255 },
+              "policy": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "allowedNamespaces", "allowClusterScoped", "defaultListLimit",
+                  "maximumListLimit", "defaultWatchSeconds", "maximumWatchSeconds",
+                  "maximumResultBytes", "allowPodLogs", "allowInsecureLogBackendTLS",
+                  "defaultLogBytes", "maximumLogBytes", "defaultLogSeconds",
+                  "maximumLogSeconds"
+                ],
+                "properties": {
+                  "allowedNamespaces": {
+                    "type": "array",
+                    "items": { "type": "string", "minLength": 1 },
+                    "uniqueItems": true
+                  },
+                  "allowClusterScoped": { "type": "boolean" },
+                  "defaultListLimit": { "type": "integer", "minimum": 1, "maximum": 1000 },
+                  "maximumListLimit": { "type": "integer", "minimum": 1, "maximum": 1000 },
+                  "defaultWatchSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
+                  "maximumWatchSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
+                  "maximumResultBytes": { "type": "integer", "minimum": 1, "maximum": 2097152 },
+                  "allowPodLogs": { "type": "boolean" },
+                  "allowInsecureLogBackendTLS": { "type": "boolean" },
+                  "defaultLogBytes": { "type": "integer", "minimum": 1, "maximum": 1048576 },
+                  "maximumLogBytes": { "type": "integer", "minimum": 1, "maximum": 1048576 },
+                  "defaultLogSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
+                  "maximumLogSeconds": { "type": "integer", "minimum": 1, "maximum": 60 }
+                }
               }
             }
           }
