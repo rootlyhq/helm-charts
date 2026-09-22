@@ -48,6 +48,10 @@ data:
       tempo:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.providers.argocd }}
+      argocd:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       mcp:
         {{- toYaml .Values.providers.mcp | nindent 8 }}
       {{- with .Values.providers.postgresql }}

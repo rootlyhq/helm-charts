@@ -54,6 +54,7 @@ providers:
   prometheus: []
   loki: []
   tempo: []
+  argocd: []
   mcp: []
   postgresql: []
   mysql: []

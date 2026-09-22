@@ -197,6 +197,65 @@
         }
       }
     },
+    "argocdProvider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "url", "token_file"],
+      "dependencies": {
+        "client_certificate_file": ["client_key_file"],
+        "client_key_file": ["client_certificate_file"]
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["url"],
+            "properties": { "url": { "pattern": "^http://" } }
+          },
+          "then": {
+            "required": ["allow_insecure_http"],
+            "properties": { "allow_insecure_http": { "const": true } },
+            "not": {
+              "anyOf": [
+                { "required": ["ca_bundle_file"] },
+                { "required": ["client_certificate_file"] },
+                { "required": ["client_key_file"] }
+              ]
+            }
+          }
+        }
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "url": { "$ref": "#/definitions/httpEndpoint" },
+        "allow_insecure_http": { "type": "boolean" },
+        "token_file": { "type": "string", "pattern": "^/" },
+        "ca_bundle_file": { "type": "string", "pattern": "^/" },
+        "client_certificate_file": { "type": "string", "pattern": "^/" },
+        "client_key_file": { "type": "string", "pattern": "^/" },
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "allowed_projects": {
+              "type": "array",
+              "maxItems": 100,
+              "uniqueItems": true,
+              "items": { "type": "string", "minLength": 1, "maxLength": 255 }
+            },
+            "allow_cluster_inventory": { "type": "boolean" },
+            "maximum_concurrency": { "type": "integer", "minimum": 1, "maximum": 8 },
+            "maximum_result_bytes": { "type": "integer", "minimum": 1024, "maximum": 2097152 },
+            "maximum_applications": { "type": "integer", "minimum": 1, "maximum": 500 },
+            "maximum_resources": { "type": "integer", "minimum": 1, "maximum": 2000 },
+            "maximum_events": { "type": "integer", "minimum": 1, "maximum": 1000 },
+            "maximum_clusters": { "type": "integer", "minimum": 1, "maximum": 500 },
+            "maximum_history_entries": { "type": "integer", "minimum": 1, "maximum": 200 },
+            "maximum_manifest_bytes": { "type": "integer", "minimum": 1024, "maximum": 262144 },
+            "maximum_timeout_seconds": { "type": "integer", "minimum": 1, "maximum": 60 }
+          }
+        }
+      }
+    },
     "tempoProvider": {
       "type": "object",
       "additionalProperties": false,
@@ -341,6 +400,13 @@
           "type": "array",
           "maxItems": 16,
           "items": { "$ref": "#/definitions/tempoProvider" }
+        },
+        "argocd": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/definitions/argocdProvider"
+          }
         },
         "mcp": { "type": "array", "maxItems": 16 },
         "postgresql": {
