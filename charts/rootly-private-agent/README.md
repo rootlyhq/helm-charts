@@ -127,8 +127,8 @@ When `context` is empty, the agent uses the kubeconfig's `current-context`.
 Relative CA, client-certificate, client-key, and token-file references resolve
 from the kubeconfig directory; `exec` and legacy `auth-provider` authentication
 plugins are rejected. The selected API server must use HTTPS with certificate
-verification enabled; plaintext endpoints and `insecure-skip-tls-verify` are
-rejected.
+verification enabled; plaintext endpoints, embedded URL credentials, query
+strings, fragments, and `insecure-skip-tls-verify` are rejected.
 
 Enabling `providers.kubernetes[].policy.allowPodLogs` for the in-cluster entry
 additionally grants `get` on `pods/log`. ConfigMaps and logs may contain sensitive
