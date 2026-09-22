@@ -120,6 +120,9 @@ extraVolumeMounts:
 The legacy singleton `providers.kubernetes.enabled` shape is intentionally not
 accepted. If every Kubernetes entry uses a mounted kubeconfig, set
 `rbac.create: false`; the Pod then disables ServiceAccount token automounting.
+To disable Kubernetes entirely, set `providers.kubernetes: []` together with
+`rbac.create: false`; the rendered agent configuration preserves an explicit
+empty list.
 When `context` is empty, the agent uses the kubeconfig's `current-context`.
 Relative CA, client-certificate, client-key, and token-file references resolve
 from the kubeconfig directory; `exec` and legacy `auth-provider` authentication

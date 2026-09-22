@@ -146,6 +146,17 @@ jobs:
             echo "A kubeconfig-only deployment must not render Kubernetes RBAC."
             exit 1
           fi
+          disabled_kubernetes_config=$(helm template test "$chart" --set agent.controlPlaneEnabled=false --set rbac.create=false \
+            --set-json 'providers.kubernetes=[]')
+          if ! awk '$0 == "      kubernetes:" { getline; found = ($0 == "        []") } END { exit !found }' <<<"$disabled_kubernetes_config"; then
+            echo "A disabled Kubernetes provider must render as an explicit empty list."
+            exit 1
+          fi
+          grep -q 'automountServiceAccountToken: false' <<<"$disabled_kubernetes_config"
+          if grep -q 'kind: ClusterRole' <<<"$disabled_kubernetes_config"; then
+            echo "A Kubernetes-disabled deployment must not render Kubernetes RBAC."
+            exit 1
+          fi
           assert_invalid_kubernetes() {
             local values="$1"
             local reason="$2"

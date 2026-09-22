@@ -22,6 +22,7 @@ data:
       {{- end }}
     providers:
       kubernetes:
+        {{- if .Values.providers.kubernetes }}
         {{- range $index, $provider := .Values.providers.kubernetes }}
         {{- $id := $provider.id }}
         {{- if and (eq $index 0) (eq $id "") }}
@@ -50,6 +51,9 @@ data:
             maximum_log_bytes: {{ int $provider.policy.maximumLogBytes }}
             default_log_seconds: {{ int $provider.policy.defaultLogSeconds }}
             maximum_log_seconds: {{ int $provider.policy.maximumLogSeconds }}
+        {{- end }}
+        {{- else }}
+        []
         {{- end }}
       prometheus:
         {{- toYaml .Values.providers.prometheus | nindent 8 }}
