@@ -277,6 +277,9 @@ jobs:
           assert_invalid_pyroscope \
             '[{"id":"unbounded","url":"https://pyroscope.internal","policy":{"maximum_nodes":10001}}]' \
             'an out-of-range policy value'
+          assert_invalid_pyroscope \
+            '[{"id":"one-point-series","url":"https://pyroscope.internal","policy":{"maximum_points_per_series":1}}]' \
+            'a point budget that cannot represent a timeline window'
           argocd_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false \
             --set-json 'providers.argocd=[{"id":"deployments-production","url":"https://argocd.internal","token_file":"/run/secrets/argocd/token","policy":{"allowed_projects":["payments"],"allow_cluster_inventory":false,"maximum_resources":500}}]')
           grep -q '^      argocd:' <<<"$argocd_config"

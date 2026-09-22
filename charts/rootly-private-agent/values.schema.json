@@ -371,7 +371,7 @@
             "maximum_profile_types": { "type": "integer", "minimum": 1, "maximum": 1000 },
             "maximum_label_values": { "type": "integer", "minimum": 1, "maximum": 5000 },
             "maximum_series": { "type": "integer", "minimum": 1, "maximum": 1000 },
-            "maximum_points_per_series": { "type": "integer", "minimum": 1, "maximum": 10000 },
+            "maximum_points_per_series": { "type": "integer", "minimum": 2, "maximum": 10000 },
             "maximum_nodes": { "type": "integer", "minimum": 1, "maximum": 10000 },
             "maximum_range_seconds": { "type": "integer", "minimum": 1, "maximum": 86400 },
             "maximum_timeout_seconds": { "type": "integer", "minimum": 1, "maximum": 30 }
