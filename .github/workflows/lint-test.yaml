@@ -275,6 +275,9 @@ jobs:
             '[{"id":"empty-scope","url":"https://pyroscope.internal","enforced_label_matchers":""}]' \
             'an empty configured label scope'
           assert_invalid_pyroscope \
+            '[{"id":"empty-matcher-set","url":"https://pyroscope.internal","enforced_label_matchers":"{   }"}]' \
+            'an explicitly empty matcher set'
+          assert_invalid_pyroscope \
             '[{"id":"unbounded","url":"https://pyroscope.internal","policy":{"maximum_nodes":10001}}]' \
             'an out-of-range policy value'
           assert_invalid_pyroscope \
