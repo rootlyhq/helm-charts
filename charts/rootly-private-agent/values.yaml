@@ -5,7 +5,7 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
   # When set, the immutable digest takes precedence over tag.
-  digest: "sha256:1822bd4e8c2cd8aa6c088329d0e29c60782869b37eba4464aad2e8bc9e74220c"
+  digest: "sha256:832face1f46e14985c9c78ae1c18c9375ffaaa8cfc5c3e37cd2a6b09b01b0f44"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
