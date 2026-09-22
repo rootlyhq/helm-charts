@@ -181,6 +181,13 @@ jobs:
           assert_invalid_kubernetes \
             "[{\"id\":\"first\",\"displayName\":\"First\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_policy},{\"id\":\"\",\"displayName\":\"Second\",\"kubeconfigFile\":\"/run/secrets/kubernetes/two.yaml\",\"context\":\"two\",\"policy\":$kubernetes_policy}]" \
             'an empty provider ID after the first entry'
+          assert_invalid_kubernetes \
+            "[{\"id\":\"in-cluster\",\"displayName\":\"In cluster\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_policy}]" \
+            'an in-cluster provider without a ServiceAccount name' \
+            --set serviceAccount.create=false
+          assert_invalid_kubernetes \
+            "[{\"id\":\"remote\",\"displayName\":\"Remote\",\"kubeconfigFile\":\"/run/secrets/kubernetes/remote.yaml\",\"context\":\"remote\",\"policy\":$kubernetes_policy}]" \
+            'chart-managed RBAC without an in-cluster provider'
           database_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false \
             --set-json 'providers.postgresql=[{"id":"postgresql-test","host":"postgresql.internal","database":"app","username_file":"/run/secrets/postgresql/username","password_file":"/run/secrets/postgresql/password","allow_insecure":true,"allowed_schemas":["app"]}]' \
             --set-json 'providers.mysql=[{"id":"mysql-test","host":"mysql.internal","database":"app","username_file":"/run/secrets/mysql/username","password_file":"/run/secrets/mysql/password","allow_insecure":true,"allowed_schemas":["app"]}]')
