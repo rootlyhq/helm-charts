@@ -150,7 +150,7 @@ jobs:
             local values="$1"
             local reason="$2"
             shift 2
-            if helm lint "$chart" --set agent.controlPlaneEnabled=false "$@" --set-json "providers.kubernetes=$values" >/dev/null 2>&1; then
+            if helm template test "$chart" --set agent.controlPlaneEnabled=false "$@" --set-json "providers.kubernetes=$values" >/dev/null 2>&1; then
               echo "Kubernetes provider configuration accepted $reason."
               exit 1
             fi
