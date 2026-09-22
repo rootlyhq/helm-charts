@@ -2,8 +2,8 @@ apiVersion: v2
 name: rootly-private-agent
 description: Outbound-only private infrastructure access for Rootly AI SRE
 type: application
-version: 0.1.2
-appVersion: "0.1.0-beta.10"
+version: 0.1.3
+appVersion: "0.1.0-beta.11"
 home: https://rootly.com
 icon: https://avatars.githubusercontent.com/u/64895812
 sources:
@@ -21,11 +21,7 @@ annotations:
   artifacthub.io/license: Apache-2.0
   artifacthub.io/prerelease: "true"
   artifacthub.io/changes: |
-    - kind: added
-      description: Add Grafana Tempo provider configuration.
-    - kind: added
-      description: Add fixed-origin internal HTTP provider configuration.
-    - kind: added
-      description: Add PostgreSQL and MySQL provider configuration.
     - kind: changed
-      description: Update Rootly Private Agent to v0.1.0-beta.10.
+      description: Update Rootly Private Agent to v0.1.0-beta.11.
+    - kind: changed
+      description: Centralize provider admission controls and strict JSON validation.
