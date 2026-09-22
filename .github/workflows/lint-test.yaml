@@ -131,6 +131,74 @@ jobs:
             echo "Empty optional providers must be omitted for compatibility with earlier agent images."
             exit 1
           fi
+          kubernetes_policy='{"allowedNamespaces":["default"],"allowClusterScoped":false,"defaultListLimit":500,"maximumListLimit":1000,"defaultWatchSeconds":30,"maximumWatchSeconds":60,"maximumResultBytes":2097152,"allowPodLogs":false,"allowInsecureLogBackendTLS":false,"defaultLogBytes":262144,"maximumLogBytes":1048576,"defaultLogSeconds":30,"maximumLogSeconds":60}'
+          kubernetes_log_policy=${kubernetes_policy/\"allowPodLogs\":false/\"allowPodLogs\":true}
+          kubernetes_config=$(helm template test "$chart" --set agent.controlPlaneEnabled=false \
+            --set-json "providers.kubernetes=[{\"id\":\"production\",\"displayName\":\"Production\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_policy},{\"id\":\"staging\",\"displayName\":\"Staging\",\"kubeconfigFile\":\"/run/secrets/kubernetes/staging.yaml\",\"context\":\"staging\",\"policy\":$kubernetes_log_policy}]")
+          grep -q 'id: "production"' <<<"$kubernetes_config"
+          grep -q 'id: "staging"' <<<"$kubernetes_config"
+          grep -q 'kubeconfig_file: "/run/secrets/kubernetes/staging.yaml"' <<<"$kubernetes_config"
+          grep -q 'context: "staging"' <<<"$kubernetes_config"
+          grep -q 'automountServiceAccountToken: true' <<<"$kubernetes_config"
+          if grep -q 'pods/log' <<<"$kubernetes_config"; then
+            echo "Pod-log RBAC must not be granted when only a kubeconfig-backed provider enables logs."
+            exit 1
+          fi
+          in_cluster_log_config=$(helm template test "$chart" --set agent.controlPlaneEnabled=false \
+            --set-json "providers.kubernetes=[{\"id\":\"production\",\"displayName\":\"Production\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_log_policy}]")
+          if ! grep -q 'pods/log' <<<"$in_cluster_log_config"; then
+            echo "Pod-log RBAC must be granted when the in-cluster provider enables logs."
+            exit 1
+          fi
+          remote_kubernetes_config=$(helm template test "$chart" --set agent.controlPlaneEnabled=false --set rbac.create=false \
+            --set-json "providers.kubernetes=[{\"id\":\"staging\",\"displayName\":\"Staging\",\"kubeconfigFile\":\"/run/secrets/kubernetes/staging.yaml\",\"context\":\"staging\",\"policy\":$kubernetes_policy}]")
+          grep -q 'automountServiceAccountToken: false' <<<"$remote_kubernetes_config"
+          if grep -q 'kind: ClusterRole' <<<"$remote_kubernetes_config"; then
+            echo "A kubeconfig-only deployment must not render Kubernetes RBAC."
+            exit 1
+          fi
+          disabled_kubernetes_config=$(helm template test "$chart" --set agent.controlPlaneEnabled=false --set rbac.create=false \
+            --set-json 'providers.kubernetes=[]')
+          if ! awk '$0 == "      kubernetes:" { getline; found = ($0 == "        []") } END { exit !found }' <<<"$disabled_kubernetes_config"; then
+            echo "A disabled Kubernetes provider must render as an explicit empty list."
+            exit 1
+          fi
+          grep -q 'automountServiceAccountToken: false' <<<"$disabled_kubernetes_config"
+          if grep -q 'kind: ClusterRole' <<<"$disabled_kubernetes_config"; then
+            echo "A Kubernetes-disabled deployment must not render Kubernetes RBAC."
+            exit 1
+          fi
+          assert_invalid_kubernetes() {
+            local values="$1"
+            local reason="$2"
+            shift 2
+            if helm template test "$chart" --set agent.controlPlaneEnabled=false "$@" --set-json "providers.kubernetes=$values" >/dev/null 2>&1; then
+              echo "Kubernetes provider configuration accepted $reason."
+              exit 1
+            fi
+          }
+          assert_invalid_kubernetes \
+            '{"enabled":true}' \
+            'the removed singleton provider shape'
+          assert_invalid_kubernetes \
+            "[{\"id\":\"duplicate\",\"displayName\":\"One\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_policy},{\"id\":\"duplicate\",\"displayName\":\"Two\",\"kubeconfigFile\":\"/run/secrets/kubernetes/two.yaml\",\"context\":\"two\",\"policy\":$kubernetes_policy}]" \
+            'duplicate provider IDs'
+          assert_invalid_kubernetes \
+            "[{\"id\":\"one\",\"displayName\":\"One\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_policy},{\"id\":\"two\",\"displayName\":\"Two\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_policy}]" \
+            'multiple in-cluster providers'
+          assert_invalid_kubernetes \
+            "[{\"id\":\"context-only\",\"displayName\":\"Context only\",\"kubeconfigFile\":\"\",\"context\":\"staging\",\"policy\":$kubernetes_policy}]" \
+            'a context without a kubeconfig file'
+          assert_invalid_kubernetes \
+            "[{\"id\":\"first\",\"displayName\":\"First\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_policy},{\"id\":\"\",\"displayName\":\"Second\",\"kubeconfigFile\":\"/run/secrets/kubernetes/two.yaml\",\"context\":\"two\",\"policy\":$kubernetes_policy}]" \
+            'an empty provider ID after the first entry'
+          assert_invalid_kubernetes \
+            "[{\"id\":\"in-cluster\",\"displayName\":\"In cluster\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_policy}]" \
+            'an in-cluster provider without a ServiceAccount name' \
+            --set serviceAccount.create=false
+          assert_invalid_kubernetes \
+            "[{\"id\":\"remote\",\"displayName\":\"Remote\",\"kubeconfigFile\":\"/run/secrets/kubernetes/remote.yaml\",\"context\":\"remote\",\"policy\":$kubernetes_policy}]" \
+            'chart-managed RBAC without an in-cluster provider'
           database_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false \
             --set-json 'providers.postgresql=[{"id":"postgresql-test","host":"postgresql.internal","database":"app","username_file":"/run/secrets/postgresql/username","password_file":"/run/secrets/postgresql/password","allow_insecure":true,"allowed_schemas":["app"]}]' \
             --set-json 'providers.mysql=[{"id":"mysql-test","host":"mysql.internal","database":"app","username_file":"/run/secrets/mysql/username","password_file":"/run/secrets/mysql/password","allow_insecure":true,"allowed_schemas":["app"]}]')
@@ -307,8 +375,21 @@ jobs:
         id: list-changed
         run: |
           changed=$(ct list-changed --config ct.yaml)
-          if [[ -n "$changed" ]]; then
+          releasable=()
+          while IFS= read -r chart; do
+            if [[ -z "$chart" ]]; then
+              continue
+            fi
+            if [[ -f "$chart/.release-pending" ]]; then
+              echo "Skipping install for release-pending chart $chart."
+              continue
+            fi
+            releasable+=("$chart")
+          done <<< "$changed"
+          if (( ${#releasable[@]} > 0 )); then
+            charts=$(IFS=,; echo "${releasable[*]}")
             echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "charts=$charts" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create kind cluster
@@ -317,4 +398,4 @@ jobs:
 
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct install --config ct.yaml
+        run: ct install --config ct.yaml --charts "${{ steps.list-changed.outputs.charts }}"

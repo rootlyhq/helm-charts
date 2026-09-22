@@ -29,7 +29,7 @@ spec:
         {{- end }}
     spec:
       serviceAccountName: {{ include "rootly-private-agent.serviceAccountName" . }}
-      automountServiceAccountToken: {{ .Values.providers.kubernetes.enabled }}
+      automountServiceAccountToken: {{ include "rootly-private-agent.hasInClusterKubernetes" . }}
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}

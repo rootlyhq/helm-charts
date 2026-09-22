@@ -2,10 +2,24 @@ agent:
   controlPlaneEnabled: false
 providers:
   kubernetes:
-    enabled: true
-    policy:
-      allowedNamespaces:
-        - default
-      allowClusterScoped: false
+    - id: test-cluster
+      displayName: Test cluster
+      kubeconfigFile: ""
+      context: ""
+      policy:
+        allowedNamespaces:
+          - default
+        allowClusterScoped: false
+        defaultListLimit: 500
+        maximumListLimit: 1000
+        defaultWatchSeconds: 30
+        maximumWatchSeconds: 60
+        maximumResultBytes: 2097152
+        allowPodLogs: false
+        allowInsecureLogBackendTLS: false
+        defaultLogBytes: 262144
+        maximumLogBytes: 1048576
+        defaultLogSeconds: 30
+        maximumLogSeconds: 60
 persistence:
   enabled: false

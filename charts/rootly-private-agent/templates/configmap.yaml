@@ -22,24 +22,39 @@ data:
       {{- end }}
     providers:
       kubernetes:
-        enabled: {{ .Values.providers.kubernetes.enabled }}
-        id: {{ include "rootly-private-agent.providerID" . | quote }}
-        display_name: {{ default (include "rootly-private-agent.providerID" .) .Values.providers.kubernetes.displayName | quote }}
-        policy:
-          allowed_namespaces:
-            {{- toYaml .Values.providers.kubernetes.policy.allowedNamespaces | nindent 12 }}
-          allow_cluster_scoped: {{ .Values.providers.kubernetes.policy.allowClusterScoped }}
-          default_list_limit: {{ int .Values.providers.kubernetes.policy.defaultListLimit }}
-          maximum_list_limit: {{ int .Values.providers.kubernetes.policy.maximumListLimit }}
-          default_watch_seconds: {{ int .Values.providers.kubernetes.policy.defaultWatchSeconds }}
-          maximum_watch_seconds: {{ int .Values.providers.kubernetes.policy.maximumWatchSeconds }}
-          maximum_result_bytes: {{ int .Values.providers.kubernetes.policy.maximumResultBytes }}
-          allow_pod_logs: {{ .Values.providers.kubernetes.policy.allowPodLogs }}
-          allow_insecure_log_backend_tls: {{ .Values.providers.kubernetes.policy.allowInsecureLogBackendTLS }}
-          default_log_bytes: {{ int .Values.providers.kubernetes.policy.defaultLogBytes }}
-          maximum_log_bytes: {{ int .Values.providers.kubernetes.policy.maximumLogBytes }}
-          default_log_seconds: {{ int .Values.providers.kubernetes.policy.defaultLogSeconds }}
-          maximum_log_seconds: {{ int .Values.providers.kubernetes.policy.maximumLogSeconds }}
+        {{- if .Values.providers.kubernetes }}
+        {{- range $index, $provider := .Values.providers.kubernetes }}
+        {{- $id := $provider.id }}
+        {{- if and (eq $index 0) (eq $id "") }}
+        {{- $id = include "rootly-private-agent.agentName" $ }}
+        {{- end }}
+        - id: {{ $id | quote }}
+          display_name: {{ default $id $provider.displayName | quote }}
+          {{- with $provider.kubeconfigFile }}
+          kubeconfig_file: {{ . | quote }}
+          {{- end }}
+          {{- with $provider.context }}
+          context: {{ . | quote }}
+          {{- end }}
+          policy:
+            allowed_namespaces:
+              {{- toYaml $provider.policy.allowedNamespaces | nindent 14 }}
+            allow_cluster_scoped: {{ $provider.policy.allowClusterScoped }}
+            default_list_limit: {{ int $provider.policy.defaultListLimit }}
+            maximum_list_limit: {{ int $provider.policy.maximumListLimit }}
+            default_watch_seconds: {{ int $provider.policy.defaultWatchSeconds }}
+            maximum_watch_seconds: {{ int $provider.policy.maximumWatchSeconds }}
+            maximum_result_bytes: {{ int $provider.policy.maximumResultBytes }}
+            allow_pod_logs: {{ $provider.policy.allowPodLogs }}
+            allow_insecure_log_backend_tls: {{ $provider.policy.allowInsecureLogBackendTLS }}
+            default_log_bytes: {{ int $provider.policy.defaultLogBytes }}
+            maximum_log_bytes: {{ int $provider.policy.maximumLogBytes }}
+            default_log_seconds: {{ int $provider.policy.defaultLogSeconds }}
+            maximum_log_seconds: {{ int $provider.policy.maximumLogSeconds }}
+        {{- end }}
+        {{- else }}
+        []
+        {{- end }}
       prometheus:
         {{- toYaml .Values.providers.prometheus | nindent 8 }}
       loki:
