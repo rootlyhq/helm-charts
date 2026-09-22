@@ -132,13 +132,24 @@ jobs:
             exit 1
           fi
           kubernetes_policy='{"allowedNamespaces":["default"],"allowClusterScoped":false,"defaultListLimit":500,"maximumListLimit":1000,"defaultWatchSeconds":30,"maximumWatchSeconds":60,"maximumResultBytes":2097152,"allowPodLogs":false,"allowInsecureLogBackendTLS":false,"defaultLogBytes":262144,"maximumLogBytes":1048576,"defaultLogSeconds":30,"maximumLogSeconds":60}'
+          kubernetes_log_policy=${kubernetes_policy/\"allowPodLogs\":false/\"allowPodLogs\":true}
           kubernetes_config=$(helm template test "$chart" --set agent.controlPlaneEnabled=false \
-            --set-json "providers.kubernetes=[{\"id\":\"production\",\"displayName\":\"Production\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_policy},{\"id\":\"staging\",\"displayName\":\"Staging\",\"kubeconfigFile\":\"/run/secrets/kubernetes/staging.yaml\",\"context\":\"staging\",\"policy\":$kubernetes_policy}]")
+            --set-json "providers.kubernetes=[{\"id\":\"production\",\"displayName\":\"Production\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_policy},{\"id\":\"staging\",\"displayName\":\"Staging\",\"kubeconfigFile\":\"/run/secrets/kubernetes/staging.yaml\",\"context\":\"staging\",\"policy\":$kubernetes_log_policy}]")
           grep -q 'id: "production"' <<<"$kubernetes_config"
           grep -q 'id: "staging"' <<<"$kubernetes_config"
           grep -q 'kubeconfig_file: "/run/secrets/kubernetes/staging.yaml"' <<<"$kubernetes_config"
           grep -q 'context: "staging"' <<<"$kubernetes_config"
           grep -q 'automountServiceAccountToken: true' <<<"$kubernetes_config"
+          if grep -q 'pods/log' <<<"$kubernetes_config"; then
+            echo "Pod-log RBAC must not be granted when only a kubeconfig-backed provider enables logs."
+            exit 1
+          fi
+          in_cluster_log_config=$(helm template test "$chart" --set agent.controlPlaneEnabled=false \
+            --set-json "providers.kubernetes=[{\"id\":\"production\",\"displayName\":\"Production\",\"kubeconfigFile\":\"\",\"context\":\"\",\"policy\":$kubernetes_log_policy}]")
+          if ! grep -q 'pods/log' <<<"$in_cluster_log_config"; then
+            echo "Pod-log RBAC must be granted when the in-cluster provider enables logs."
+            exit 1
+          fi
           remote_kubernetes_config=$(helm template test "$chart" --set agent.controlPlaneEnabled=false --set rbac.create=false \
             --set-json "providers.kubernetes=[{\"id\":\"staging\",\"displayName\":\"Staging\",\"kubeconfigFile\":\"/run/secrets/kubernetes/staging.yaml\",\"context\":\"staging\",\"policy\":$kubernetes_policy}]")
           grep -q 'automountServiceAccountToken: false' <<<"$remote_kubernetes_config"
