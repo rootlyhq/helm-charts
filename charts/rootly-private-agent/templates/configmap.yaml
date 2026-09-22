@@ -85,3 +85,7 @@ data:
       http:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.providers.kafka }}
+      kafka:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

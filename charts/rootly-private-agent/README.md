@@ -3,7 +3,7 @@
 > **Early preview:** interfaces, permissions, and configuration may change before
 > general availability.
 
-> **Unreleased:** generic HTTP, Grafana Tempo, Grafana Pyroscope, Argo CD, and
+> **Unreleased:** generic HTTP, Grafana Tempo, Grafana Pyroscope, Argo CD, Kafka, and
 > multi-cluster Kubernetes provider configuration is staged for the next
 > compatible chart and agent image release. The currently published chart does
 > not include these changes yet.
@@ -137,7 +137,7 @@ customer data, so scope `allowedNamespaces` and enable logs deliberately.
 ## Private provider credentials
 
 Prometheus, Loki, Tempo, Pyroscope, Argo CD, MCP, PostgreSQL, MySQL, internal
-HTTP, and custom CA credentials must be mounted as files using `extraVolumes` and
+HTTP, Kafka, and custom CA credentials must be mounted as files using `extraVolumes` and
 `extraVolumeMounts`; do not put secret values, database passwords, or inline
 DSNs in Helm values. Database and HTTP providers reference mounted credential,
 CA, and optional client certificate/key paths, and reload rotating credential
@@ -145,7 +145,8 @@ files without placing their contents in the rendered ConfigMap. See the
 [Private Agent documentation](https://docs.rootly.com/private-agent#rootly-private-agent),
 [Grafana Tempo guide](https://docs.rootly.com/private-agent-tempo),
 [Grafana Pyroscope guide](https://docs.rootly.com/private-agent-pyroscope),
-[Argo CD guide](https://docs.rootly.com/private-agent-argocd), and
+[Argo CD guide](https://docs.rootly.com/private-agent-argocd),
+[Kafka guide](https://docs.rootly.com/private-agent-kafka), and
 [internal HTTP guide](https://docs.rootly.com/private-agent-http).
 
 For Pyroscope, configure one or more direct endpoints or fixed Grafana data
@@ -205,6 +206,31 @@ extraVolumeMounts:
 
 Do not use an Argo CD administrator token. Cluster inventory is not advertised
 unless `policy.allow_cluster_inventory` is explicitly enabled.
+
+For Kafka, configure one entry per independently routed cluster. TLS is required
+unless plaintext is explicitly enabled for local testing. This Amazon MSK
+example uses the ECS task role, EKS workload identity, or EC2 instance profile
+through the AWS default credential chain:
+
+```yaml
+providers:
+  kafka:
+    - id: events-staging-us-east-1
+      bootstrap_servers:
+        - boot-example.c1.kafka-serverless.us-east-1.amazonaws.com:9098
+      tls:
+        enabled: true
+      sasl:
+        mechanism: aws-msk-iam
+        aws_region: us-east-1
+      policy:
+        allowed_topics: [staging.events.*]
+        allow_message_reads: false
+```
+
+SASL/PLAIN, SCRAM-SHA-256, SCRAM-SHA-512, custom CAs, and mutual TLS are also
+supported through mounted files. Message reads are disabled by default and
+never join a consumer group or commit offsets.
 
 ## NetworkPolicy
 

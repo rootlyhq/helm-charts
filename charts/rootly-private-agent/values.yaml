@@ -62,6 +62,7 @@ providers:
   postgresql: []
   mysql: []
   http: []
+  kafka: []
 
 serviceAccount:
   create: true
