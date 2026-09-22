@@ -54,6 +54,39 @@ entries:
   rootly-private-agent:
   - annotations:
       artifacthub.io/changes: |
+        - kind: added
+          description: Add Grafana Pyroscope provider configuration.
+        - kind: added
+          description: Add multiple independently routed Kubernetes providers per agent.
+        - kind: changed
+          description: Update Rootly Private Agent to v0.1.0-beta.12.
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/prerelease: "true"
+    apiVersion: v2
+    appVersion: 0.1.0-beta.12
+    created: "2026-09-22T18:09:43.09444827Z"
+    description: Outbound-only private infrastructure access for Rootly AI SRE
+    digest: a2637a6ccb3449aba456f40be5fc5501adfd74a571419863b7974c33b13a4cdc
+    home: https://rootly.com
+    icon: https://avatars.githubusercontent.com/u/64895812
+    keywords:
+    - rootly
+    - ai-sre
+    - private-agent
+    - kubernetes
+    maintainers:
+    - email: support@rootly.com
+      name: Rootly
+      url: https://rootly.com
+    name: rootly-private-agent
+    sources:
+    - https://github.com/rootlyhq/helm-charts/tree/master/charts/rootly-private-agent
+    type: application
+    urls:
+    - https://github.com/rootlyhq/helm-charts/releases/download/rootly-private-agent-0.1.4/rootly-private-agent-0.1.4.tgz
+    version: 0.1.4
+  - annotations:
+      artifacthub.io/changes: |
         - kind: changed
           description: Update Rootly Private Agent to v0.1.0-beta.11.
         - kind: changed
@@ -178,4 +211,4 @@ entries:
     urls:
     - https://github.com/rootlyhq/helm-charts/releases/download/rootly-private-agent-0.1.0/rootly-private-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-22T04:08:41.977598791Z"
+generated: "2026-09-22T18:09:43.094468959Z"
