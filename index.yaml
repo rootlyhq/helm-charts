@@ -55,6 +55,41 @@ entries:
   - annotations:
       artifacthub.io/changes: |
         - kind: added
+          description: Add Apache Kafka, Amazon MSK IAM, and Redpanda provider configuration.
+        - kind: added
+          description: Add Grafana Pyroscope provider configuration.
+        - kind: added
+          description: Add multiple independently routed Kubernetes providers per agent.
+        - kind: changed
+          description: Update Rootly Private Agent to v0.1.0-beta.13.
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/prerelease: "true"
+    apiVersion: v2
+    appVersion: 0.1.0-beta.13
+    created: "2026-09-23T04:46:35.035079005Z"
+    description: Outbound-only private infrastructure access for Rootly AI SRE
+    digest: a316d022e6544328c9dab62a7b4be7dcbfcee66a7b91039caeb99f172cc03f8b
+    home: https://rootly.com
+    icon: https://avatars.githubusercontent.com/u/64895812
+    keywords:
+    - rootly
+    - ai-sre
+    - private-agent
+    - kubernetes
+    maintainers:
+    - email: support@rootly.com
+      name: Rootly
+      url: https://rootly.com
+    name: rootly-private-agent
+    sources:
+    - https://github.com/rootlyhq/helm-charts/tree/master/charts/rootly-private-agent
+    type: application
+    urls:
+    - https://github.com/rootlyhq/helm-charts/releases/download/rootly-private-agent-0.1.5/rootly-private-agent-0.1.5.tgz
+    version: 0.1.5
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
           description: Add Grafana Pyroscope provider configuration.
         - kind: added
           description: Add multiple independently routed Kubernetes providers per agent.
@@ -211,4 +246,4 @@ entries:
     urls:
     - https://github.com/rootlyhq/helm-charts/releases/download/rootly-private-agent-0.1.0/rootly-private-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-22T18:09:43.094468959Z"
+generated: "2026-09-23T04:46:35.035096918Z"
