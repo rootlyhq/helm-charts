@@ -3,11 +3,6 @@
 > **Early preview:** interfaces, permissions, and configuration may change before
 > general availability.
 
-> **Unreleased:** generic HTTP, Grafana Tempo, Grafana Pyroscope, Argo CD, Kafka, and
-> multi-cluster Kubernetes provider configuration is staged for the next
-> compatible chart and agent image release. The currently published chart does
-> not include these changes yet.
-
 Rootly Private Agent runs inside a customer Kubernetes cluster and gives Rootly
 AI SRE outbound-only, policy-bounded access to private infrastructure. The
 combined runtime supports Kubernetes, Prometheus, Loki, allowlisted Streamable
@@ -229,8 +224,9 @@ providers:
 ```
 
 SASL/PLAIN, SCRAM-SHA-256, SCRAM-SHA-512, custom CAs, and mutual TLS are also
-supported through mounted files. Message reads are disabled by default and
-never join a consumer group or commit offsets.
+supported through mounted files; SASL always requires TLS. Every Kafka provider
+must define a nonempty `policy.allowed_topics` allowlist. Message reads are
+disabled by default and never join a consumer group or commit offsets.
 
 ## NetworkPolicy
 
@@ -245,7 +241,7 @@ with the private agent release workflow. With Cosign 3 or newer, resolve the
 digest directly from the public registry and verify its keyless signature:
 
 ```sh
-VERSION=0.1.0-beta.12
+VERSION=0.1.0-beta.13
 DIGEST="$(docker buildx imagetools inspect \
   "rootlyhub/rootly-private-agent:${VERSION}" \
   --format '{{.Manifest.Digest}}')"

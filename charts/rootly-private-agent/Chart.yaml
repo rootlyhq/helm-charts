@@ -2,8 +2,8 @@ apiVersion: v2
 name: rootly-private-agent
 description: Outbound-only private infrastructure access for Rootly AI SRE
 type: application
-version: 0.1.4
-appVersion: "0.1.0-beta.12"
+version: 0.1.5
+appVersion: "0.1.0-beta.13"
 home: https://rootly.com
 icon: https://avatars.githubusercontent.com/u/64895812
 sources:
@@ -28,4 +28,4 @@ annotations:
     - kind: added
       description: Add multiple independently routed Kubernetes providers per agent.
     - kind: changed
-      description: Update Rootly Private Agent to v0.1.0-beta.12.
+      description: Update Rootly Private Agent to v0.1.0-beta.13.

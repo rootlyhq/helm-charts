@@ -259,7 +259,7 @@
     "kafkaProvider": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "bootstrap_servers", "tls"],
+      "required": ["id", "bootstrap_servers", "tls", "policy"],
       "allOf": [
         {
           "if": {
@@ -302,6 +302,17 @@
               "policy": {
                 "required": ["allow_message_reads"],
                 "properties": { "allow_message_reads": { "const": true } }
+              }
+            }
+          }
+        },
+        {
+          "if": { "required": ["sasl"] },
+          "then": {
+            "properties": {
+              "tls": {
+                "required": ["enabled"],
+                "properties": { "enabled": { "const": true } }
               }
             }
           }
@@ -374,9 +385,11 @@
         "policy": {
           "type": "object",
           "additionalProperties": false,
+          "required": ["allowed_topics"],
           "properties": {
             "allowed_topics": {
               "type": "array",
+              "minItems": 1,
               "maxItems": 100,
               "uniqueItems": true,
               "items": { "type": "string", "pattern": "^[A-Za-z0-9._*?\\[\\]\\\\^-]{1,255}$" }
