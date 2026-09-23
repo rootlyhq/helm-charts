@@ -127,7 +127,7 @@ jobs:
         run: |
           chart=charts/rootly-private-agent
           default_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false)
-          if grep -qE '^      (tempo|pyroscope|argocd|postgresql|mysql|http):' <<<"$default_config"; then
+          if grep -qE '^      (tempo|pyroscope|argocd|postgresql|mysql|http|kafka):' <<<"$default_config"; then
             echo "Empty optional providers must be omitted for compatibility with earlier agent images."
             exit 1
           fi
@@ -313,6 +313,44 @@ jobs:
             'TLS settings on a plaintext endpoint'
           assert_invalid_argocd \
             '[{"id":"unbounded","url":"https://argocd.internal","token_file":"/run/secrets/argocd/token","policy":{"maximum_resources":2001}}]' \
+            'an out-of-range policy value'
+          kafka_config=$(helm template test "$chart" --show-only templates/configmap.yaml --set agent.controlPlaneEnabled=false \
+            --set-json 'providers.kafka=[{"id":"events-staging-us-east-1","bootstrap_servers":["boot.example:9098"],"tls":{"enabled":true},"sasl":{"mechanism":"aws-msk-iam","aws_region":"us-east-1"},"policy":{"allowed_topics":["staging.events.*"],"allow_message_reads":false,"maximum_items":500}}]')
+          grep -q '^      kafka:' <<<"$kafka_config"
+          grep -q 'id: events-staging-us-east-1' <<<"$kafka_config"
+          grep -q 'mechanism: aws-msk-iam' <<<"$kafka_config"
+          grep -q 'aws_region: us-east-1' <<<"$kafka_config"
+          assert_invalid_kafka() {
+            local values="$1"
+            local reason="$2"
+            if helm lint "$chart" --set agent.controlPlaneEnabled=false --set-json "providers.kafka=$values" >/dev/null 2>&1; then
+              echo "Kafka provider schema accepted $reason."
+              exit 1
+            fi
+          }
+          assert_invalid_kafka \
+            '[{"id":"plaintext","bootstrap_servers":["broker:9092"],"tls":{"enabled":false},"policy":{"allowed_topics":["events.*"]}}]' \
+            'plaintext transport without explicit opt-in'
+          assert_invalid_kafka \
+            '[{"id":"missing-policy","bootstrap_servers":["broker:9093"],"tls":{"enabled":true}}]' \
+            'a missing topic policy'
+          assert_invalid_kafka \
+            '[{"id":"empty-allowlist","bootstrap_servers":["broker:9093"],"tls":{"enabled":true},"policy":{"allowed_topics":[]}}]' \
+            'an empty topic allowlist'
+          assert_invalid_kafka \
+            '[{"id":"plaintext-sasl","bootstrap_servers":["broker:9092"],"allow_plaintext":true,"tls":{"enabled":false},"sasl":{"mechanism":"plain","username_file":"/run/secrets/kafka/username","password_file":"/run/secrets/kafka/password"},"policy":{"allowed_topics":["events.*"]}}]' \
+            'SASL authentication without TLS'
+          assert_invalid_kafka \
+            '[{"id":"inline","bootstrap_servers":["broker:9093"],"tls":{"enabled":true},"sasl":{"mechanism":"plain","username":"rootly","password":"secret"},"policy":{"allowed_topics":["events.*"]}}]' \
+            'inline SASL credentials'
+          assert_invalid_kafka \
+            '[{"id":"partial-sasl","bootstrap_servers":["broker:9093"],"tls":{"enabled":true},"sasl":{"mechanism":"scram-sha-512","username_file":"/run/secrets/kafka/username"},"policy":{"allowed_topics":["events.*"]}}]' \
+            'incomplete SASL credentials'
+          assert_invalid_kafka \
+            '[{"id":"values-without-reads","bootstrap_servers":["broker:9093"],"tls":{"enabled":true},"policy":{"allowed_topics":["events.*"],"allow_message_reads":false,"include_message_values":true}}]' \
+            'message values without message reads'
+          assert_invalid_kafka \
+            '[{"id":"unbounded","bootstrap_servers":["broker:9093"],"tls":{"enabled":true},"policy":{"allowed_topics":["events.*"],"maximum_messages":1001}}]' \
             'an out-of-range policy value'
           if helm lint "$chart" --set agent.controlPlaneEnabled=false \
             --set-json 'providers.mysql=[{"id":"mysql-invalid","host":"mysql.internal","database":"app","username_file":"/run/secrets/mysql/username","password_file":"/run/secrets/mysql/password","allow_insecure":false,"ca_bundle_file":"/run/secrets/mysql/ca.crt","client_key_file":"/run/secrets/mysql/client.key","allowed_schemas":["app"]}]' \
