@@ -5,7 +5,7 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
   # When set, the immutable digest takes precedence over tag.
-  digest: "sha256:7a06dd4c4647adc54ce586993347c832cf99127785359e50a70cc1dd3cc273dd"
+  digest: "sha256:7918727ba34310ce8af96bed40f6f72b9752f62c71cfe80b5c01be4f875887e2"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -58,6 +58,7 @@ providers:
   tempo: []
   pyroscope: []
   argocd: []
+  gitlab: []
   mcp: []
   postgresql: []
   mysql: []
