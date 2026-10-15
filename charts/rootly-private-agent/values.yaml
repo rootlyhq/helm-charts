@@ -58,6 +58,7 @@ providers:
   tempo: []
   pyroscope: []
   argocd: []
+  gitlab: []
   mcp: []
   postgresql: []
   mysql: []

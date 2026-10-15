@@ -132,7 +132,7 @@ customer data, so scope `allowedNamespaces` and enable logs deliberately.
 ## Private provider credentials
 
 Prometheus, Loki, Tempo, Pyroscope, Argo CD, MCP, PostgreSQL, MySQL, internal
-HTTP, Kafka, and custom CA credentials must be mounted as files using `extraVolumes` and
+HTTP, Kafka, GitLab, and custom CA credentials must be mounted as files using `extraVolumes` and
 `extraVolumeMounts`; do not put secret values, database passwords, or inline
 DSNs in Helm values. Database and HTTP providers reference mounted credential,
 CA, and optional client certificate/key paths, and reload rotating credential
@@ -227,6 +227,37 @@ SASL/PLAIN, SCRAM-SHA-256, SCRAM-SHA-512, custom CAs, and mutual TLS are also
 supported through mounted files; SASL always requires TLS. Every Kafka provider
 must define a nonempty `policy.allowed_topics` allowlist. Message reads are
 disabled by default and never join a consumer group or commit offsets.
+
+For GitLab, configure one entry per self-managed instance or gitlab.com. Mount a
+`read_api` personal, group, or project access token as a file, and scope it with
+full group and project paths (subgroups of an allowed group are included):
+
+```yaml
+providers:
+  gitlab:
+    - id: gitlab-internal
+      url: https://gitlab.internal
+      token_file: /run/secrets/gitlab/token
+      policy:
+        allowed_groups: [platform]
+        allowed_projects: [ops/runbooks]
+
+extraVolumes:
+  - name: gitlab-token
+    secret:
+      secretName: rootly-private-agent-gitlab
+      items:
+        - key: gitlab-token
+          path: token
+extraVolumeMounts:
+  - name: gitlab-token
+    mountPath: /run/secrets/gitlab
+    readOnly: true
+```
+
+Custom CAs and mutual TLS are supported through mounted files. The agent ignores
+environment proxies, never follows redirects, and enforces the group and project
+allowlists before any request reaches GitLab.
 
 ## NetworkPolicy
 
