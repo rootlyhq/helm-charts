@@ -54,6 +54,35 @@ entries:
   rootly-private-agent:
   - annotations:
       artifacthub.io/changes: |
+        - kind: security
+          description: Update Rootly Private Agent to v0.1.0-beta.21, built with Go 1.27.3 to patch CVE-2026-111943 (compromised eMudhra CA intermediates are now rejected).
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/prerelease: "true"
+    apiVersion: v2
+    appVersion: 0.1.0-beta.21
+    created: "2026-10-21T08:35:32.191468561Z"
+    description: Outbound-only private infrastructure access for Rootly AI SRE
+    digest: 9ad46a94118954efc481ac59416a3369eadafd41a1444042b0914bc71ddbf35f
+    home: https://rootly.com
+    icon: https://avatars.githubusercontent.com/u/64895812
+    keywords:
+    - rootly
+    - ai-sre
+    - private-agent
+    - kubernetes
+    maintainers:
+    - email: support@rootly.com
+      name: Rootly
+      url: https://rootly.com
+    name: rootly-private-agent
+    sources:
+    - https://github.com/rootlyhq/helm-charts/tree/master/charts/rootly-private-agent
+    type: application
+    urls:
+    - https://github.com/rootlyhq/helm-charts/releases/download/rootly-private-agent-0.1.7/rootly-private-agent-0.1.7.tgz
+    version: 0.1.7
+  - annotations:
+      artifacthub.io/changes: |
         - kind: added
           description: Add self-managed GitLab and gitlab.com provider configuration.
         - kind: changed
@@ -277,4 +306,4 @@ entries:
     urls:
     - https://github.com/rootlyhq/helm-charts/releases/download/rootly-private-agent-0.1.0/rootly-private-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-15T15:11:37.662771154Z"
+generated: "2026-10-21T08:35:32.191496162Z"
